@@ -1,0 +1,324 @@
+﻿@model DoAnCoSo_Web.Areas.Student.ViewModels.KhoaHocDaDangKyViewModels
+
+@{
+    ViewData["Title"] = "Khóa học đã đăng ký";
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+    .payment:hover{
+        transform: scale(1.1);
+        border: 1px solid #ddd;
+        text-decoration: none;
+        transition: ease-in-out 0.3s;
+    }
+
+</style>
+<div class="container mt-4">
+
+    <ul class="nav nav-tabs" id="khoaHocTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="cho-tab" data-bs-toggle="tab" data-bs-target="#cho" type="button" role="tab">
+                Chờ xếp lớp
+            </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(TempData["ThongBaoNo"] == null ? "active" : "")" id="dang-tab" data-bs-toggle="tab" data-bs-target="#dang" type="button" role="tab">
+                Thời khóa biểu
+            </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(TempData["ThongBaoNo"] == null ? "" : "active")" id="chua-tab" data-bs-toggle="tab" data-bs-target="#chua" type="button" role="tab">
+                Khóa học chưa hoàn thành học phí <span class="badge rounded-pill bg-danger ms-1">@Model.listConNo.Count</span>
+            </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="da-tab" data-bs-toggle="tab" data-bs-target="#da" type="button" role="tab">
+                Lịch sử học tập
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!--Chờ xếp lớp-->
+        <div class="tab-pane fade" id="cho" role="tabpanel">
+            @if (Model != null && Model.listPhieuDangKy.Count > 0)
+            {
+                <div class="row">
+                    @foreach (var item in Model.listPhieuDangKy.Where(p => p.TrangThaiDangKy == "Chờ xử lý"))
+                    {
+                        <div class="mb-3 row bg-light border rounded-3 shadow-sm d-flex align-items-center justify-content-center p-1">
+                            <div class="col-3">
+                                <img src="data:image/jpg;base64,@Convert.ToBase64String(item.KhoaHoc.HinhAnhKhoaHoc.FirstOrDefault(h => h.LaAnhDaiDien && h.KhoaHocMaKhoaHoc == item.MaKhoaHoc).NoiDungHinh)" 
+                                     alt="@item.KhoaHoc.TenKhoaHoc" 
+                                     class="rounded-3" style="width: 220px; height: 160px; object-fit: contain;" />
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-1 text-primary fw-bold fs-3">@item.KhoaHoc.TenKhoaHoc</h6>
+                                <small class="text-danger">Đã "@item.TrangThaiThanhToan"</small>
+                            </div>
+                            <div class="col-3">
+                                <span class=" bg-warning text-dark px-3 py-2 rounded-pill fs-5">
+                                    <i class="fa-solid fa-spinner fa-spin-pulse me-1"></i> Chờ xếp lớp
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Bạn chưa có phiếu đăng ký cần xử lý.</div>
+            }
+        </div>
+
+        <!--Đang diễn ra-->
+        <div class="tab-pane fade @(TempData["ThongBaoNo"] == null ? "show active" : "")" id="dang" role="tabpanel">
+            <div class="mt-5">
+                @{
+                    DateTime currentWeek = (DateTime)ViewBag.CurrentWeekStart;
+                    DateTime prevWeek = currentWeek.AddDays(-7);
+                    DateTime nextWeek = currentWeek.AddDays(7);
+                }
+                <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                    <a asp-action="KhoaHocDaDangKy" asp-route-startDate="@prevWeek.ToString("yyyy-MM-dd")" class="btn btn-outline-primary">
+                        <i class="bi bi-chevron-left"></i> Tuần trước
+                    </a>
+                    <div class="text-center fs-2 fw-bold mt-1 text-primary">THỜI KHÓA BIỂU TUẦN</div>
+                    <a asp-action="KhoaHocDaDangKy" asp-route-startDate="@nextWeek.ToString("yyyy-MM-dd")" class="btn btn-outline-primary">
+                        Tuần sau <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Thứ</th>
+                                @for (int thu = 2; thu <= 7; thu++)
+                                {
+                                    var day = currentWeek.AddDays(thu - 2);
+                                    <th>Thứ @(thu)<br /><span class="text-muted small">(@day.ToString("dd/MM"))</span></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var caHocList = new List<string> { "Sáng", "Chiều" };
+                                for (int caIndex = 0; caIndex < caHocList.Count; caIndex++)
+                                {
+                                    string ca = caHocList[caIndex];
+                                    <tr>
+                                        <td class="fw-bold">@ca</td>
+
+                                        @for (int thu = 2; thu <= 7; thu++)
+                                        {
+                                            DateTime ngayTrongTuan = currentWeek.AddDays(thu - 2); // do T2 là ngày bắt đầu
+                                            <td>
+                                                @foreach (var item in Model.listDangHoc)
+                                                {
+                                                    if (item.LopHoc.NgayKhaiGiang.Date <= ngayTrongTuan.Date && item.LopHoc.NgayKetThuc.Date >= ngayTrongTuan.Date)
+                                                    {
+                                                        var ngayHoc = item.LopHoc.KhoaHoc.NgayHoc;
+                                                        if (ngayHoc.Contains(ca) && ngayHoc.Contains(thu.ToString()))
+                                                        {
+                                                            <div class="small fw-bold text-dark pb-1">
+                                                                @item.LopHoc.KhoaHoc.TenKhoaHoc
+                                                            </div>
+                                                            <div class="text-primary small fw-semibold">
+                                                                @item.LopHoc.KhoaHoc.GioBatDau - @item.LopHoc.KhoaHoc.GioKetThuc<br />
+                                                                Phòng: @item.LopHoc.PhongHoc.TenPhongHoc
+                                                            </div>
+                                                        }
+                                                    }
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="fw-bold text-center fs-5">
+                        Từ ngày @currentWeek.ToString("dd/MM/yyyy") đến @currentWeek.AddDays(6).ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--con no hoc phi-->
+        <div class="tab-pane fade @(TempData["ThongBaoNo"] == null ? "" : "show active")" id="chua" role="tabpanel">
+            @if(TempData["ThongBaoNo"]!=null){
+                <div class="text-center alert alert-info">
+                    @TempData["ThongBaoNo"]
+                </div>
+            }
+            @if (Model != null && Model.listConNo.Count > 0)
+            {
+                    @foreach (var item in Model.listConNo)
+                    {
+                        <div class="card mt-2 shadow-sm border-0 h-100">
+
+                            <div class="row align-items-center">
+                                <div class="col-4">
+                                    <img src="data:image/jpg;base64,@Convert.ToBase64String(item.KhoaHoc.HinhAnhKhoaHoc.FirstOrDefault(h => h.LaAnhDaiDien).NoiDungHinh)"
+                                     alt="@item.KhoaHoc.TenKhoaHoc"
+                                    class="img-fluid rounded-1" style="height: 180px; object-fit: cover;" />
+                                </div>
+
+                                <div class="col-8">
+                                    <div class="card-body">
+                                        <h4 class="card-title text-primary fw-bold">@item.KhoaHoc.TenKhoaHoc</h4>
+                                        <p class="card-text mb-1">
+                                           <i class="fa-solid fa-calendar-days me-1 text-secondary"></i>
+                                            Ngày đăng ký: @item.NgayDangKy.ToString("dd/MM/yyyy")
+                                        </p>
+                                        <p class="card-text text-danger mb-2">
+                                            Trạng thái thanh toán: <strong>@item.TrangThaiThanhToan</strong>
+                                        </p>
+                                        <p class="card-text text-muted">
+                                            Tổng còn lại cần thanh toán:
+                                            <strong class="text-danger">
+                                                @((item.KhoaHoc.HocPhi - item.HoaDon.TienDongLan1).ToString("N0")) VND
+                                            </strong>
+                                        </p>
+                                        <p class="card-text text-muted border-bottom border-1">
+                                            Vui lòng chọn phương thức thanh toán:
+                                        </p>
+
+                                        <!-- Nút thanh toán -->
+                                        <div class="row mt-3 text-center">
+                                            <div class="col-4 mb-3">
+
+                                            <form asp-area="Student" asp-controller="Payment" asp-action="CreatePaymentMomo"
+                                                  class="text-dark justify-content-center rounded shadow-sm w-100 payment p-2">
+                                                <button type="submit" name="PayUrl" class="border-0 bg-white w-100 h-100">
+                                                    <img src="~/image/momo.png" alt="MOMO" style="width: 36px; height: 36px;" class="mb-1" />
+                                                </button>
+                                                <input type="hidden" name="Amount" value="@((int)(item.KhoaHoc.HocPhi - item.HoaDon.TienDongLan1))" />
+                                                <input type="hidden" name="OrderId" value="@Guid.NewGuid().ToString()" />
+                                                <input type="hidden" name="OrderInfo" value="Hoàn tất học phí bằng Momo" />
+                                                <input type="hidden" name="FullName" value="Hoàn tất học phí Momo" />
+                                                <input type="hidden" name="ExtraData" value="@item.KhoaHoc.MaKhoaHoc.ToString()" />
+                                                <input type="hidden" name="OrderInfomation" value="Hoàn tất học phí @item.KhoaHoc.TenKhoaHoc + @item.KhoaHoc.NgayHoc @item.HoaDon.MaHoaDon" />
+                                                
+                                            </form>
+
+                                        </div>
+                                            <div class="col-4 mb-3">
+                                            <form method="post" asp-area="Student" asp-controller="Payment" asp-action="CreatePaymentUrlVnpay"
+                                                  class="text-dark justify-content-center rounded shadow-sm w-100 payment p-2">
+                                                <button type="submit" class="border-0 bg-white w-100 h-100">
+                                                    <img src="~/image/vnpay.png" alt="Vnpay" style="width: 36px; height: 36px;" class="mb-1" />
+                                                </button>
+                                                <input type="hidden" name="MaKHDK" value="@item.KhoaHoc.MaKhoaHoc" />
+                                                <input type="hidden" name="Name" value="Vnpay" />
+                                                <input type="hidden" name="Amount" value="@((int)(item.KhoaHoc.HocPhi - item.HoaDon.TienDongLan1))" />
+                                                <input type="hidden" name="OrderDescription" value="Hoàn tất học phí @item.HoaDon.MaHoaDon" />
+                                                <input type="hidden" name="ordertype" value="billpayment" />
+                                            </form>
+                                            </div>
+                                            <div class="col-4 mb-3">
+                                            <button type="button" onclick="document.getElementById('alertTienMat').classList.toggle('d-none');"
+                                               class="rounded shadow-sm w-100 h-100 p-2 payment border-0 bg-white">
+                                                <img src="~/image/money.png" alt="Tiền mặt" style="width: 36px; height: 28px;" />
+                                            </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div id="alertTienMat" class="alert alert-info mt-1 d-none">
+                                            <h5>Hướng dẫn thanh toán tiền mặt</h5>
+                                            <p>Quý học viên vui lòng đến trực tiếp quầy thu ngân.</p>
+                                            <p><strong>Địa chỉ:</strong> Lô E1, Võ Nguyên Giáp, TP. Thủ Đức, TP.HCM</p>
+                                            <p><strong>Giờ làm việc:</strong> Thứ 2 - Thứ 7 (8:00 - 17:00)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+            }
+            else
+            {
+                <div class="alert alert-info mt-3">Bạn hiện không có khóa học chưa hoàn tất học phí.</div>
+            }
+        </div>
+        <!--Lich su hoc tap-->
+        <div class="tab-pane fade" id="da" role="tabpanel">
+            @if (Model != null && Model.listDaHoc.Count > 0)
+            {
+                <div class="row">
+                    @foreach (var item in Model.listDaHoc)
+                    {
+                        <div class="mb-3 row bg-light border rounded-3 shadow-sm d-flex align-items-center justify-content-center p-1">
+                            <div class="col-3">
+                                <img src="data:image/jpg;base64,@Convert.ToBase64String(item.LopHoc.KhoaHoc.HinhAnhKhoaHoc.FirstOrDefault(h => h.LaAnhDaiDien==true).NoiDungHinh)"
+                                     alt="@item.LopHoc.KhoaHoc.TenKhoaHoc"
+                                     class="rounded-3" style="width: 220px; height: 160px; object-fit: contain;" />
+                            </div>
+                            <div class="col-6">
+                                <h5 class="text-primary fw-bold fs-4">@item.LopHoc.KhoaHoc.TenKhoaHoc</h5>
+                                <div class="row mt-3">
+                                    <div class="col-6">
+                                        <i class="fas fa-comment-dots text-secondary me-2"></i>
+                                        <span class="text-muted">Nhận xét từ giáo viên:</span>
+                                        <span class="fw-semibold">@item.NhanXetCuaGiaoVien</span>
+                                    </div>
+                                    
+                                    <div class="col-6">
+                                        <i class="fas fa-star text-warning me-2"></i>
+                                        <span class="text-muted">Điểm tổng kết:</span>
+                                        <span class="fw-semibold">@item.DiemTongKet</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="bg-light rounded-3 py-3 px-2 shadow-sm">
+                                    <div class="fw-bold text-dark mb-2 fs-6">Thời gian khóa học</div>
+                                    <div class="text-primary fw-semibold">
+                                        @item.LopHoc.NgayKhaiGiang.ToString("dd/MM/yyyy") <br /> – <br/>@item.LopHoc.NgayKetThuc.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Bạn chưa có khóa học đã hoàn thành.</div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+            const MomoComplete = @Html.Raw(Json.Serialize(TempData["Complete"]));
+            if (MomoComplete) {
+                let timerInterval;
+                Swal.fire({
+                    title: 'Hoàn tất thanh toán khóa học!',
+                    html: MomoComplete,
+                    icon: 'success',
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        const swalContainer = Swal.getPopup();
+                        const swalTimer = Swal.getTimerLeft();
+
+                        swalContainer.addEventListener('mouseenter', Swal.stopTimer);
+                        swalContainer.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+        });
+</script>

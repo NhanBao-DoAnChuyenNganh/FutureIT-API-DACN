@@ -1,0 +1,587 @@
+﻿@*
+        For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=
+*@
+
+@{
+
+}
+@model DoAnCoSo_Web.Areas.Student.ViewModels.XemChiTietViewModels
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .product-image {
+        width: 100%;
+        height: 320px;
+    }
+
+    .thumbnail {
+        width: 130px;
+        height: 100px;
+        cursor: pointer;
+        border: 0.5px solid #ddd;
+        opacity: 0.6;
+        transition: opacity 0.3s ease;
+    }
+
+        .thumbnail:hover, .thumbnail.active {
+            opacity: 1;
+        }
+
+    .star-rating {
+        display: flex;
+        justify-content: center;
+        direction: rtl;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 2.5rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: gold;
+            }
+
+        /*khi checked -> tô màu từ trái đến phải */
+        .star-rating input:checked ~ label {
+            color: gold;
+        }
+
+            /*reset màu cho những label sau radio được checked */
+            .star-rating input:checked ~ label ~ label {
+                color: #ccc;
+            }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+            @if (Model.listHinh != null && Model.listHinh.Any())
+            {
+                <img src="data:image/jpg;base64,@Convert.ToBase64String(Model.listHinh[0].NoiDungHinh)" class="img-fluid rounded mb-3 product-image" id="mainImage" />
+
+                <div class="d-flex justify-content-between">
+                    @for (int i = 0; i < Model.listHinh.Count; i++)
+                    {
+                        <img src="data:image/jpg;base64,@Convert.ToBase64String(Model.listHinh[i].NoiDungHinh)" class="thumbnail rounded @(i == 0 ? "active" : "")"
+                             onclick="changeImage(event, this.src)" />
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">Khóa học hiện chưa cập nhật hình ảnh</div>
+            }
+        </div>
+
+
+        <div class="col-md-6">
+            <h2 class="mb-3 text-primary">@Model.KhoaHocCanXem.TenKhoaHoc - @Model.KhoaHocCanXem.NgayHoc</h2>
+            <div class="mb-3">
+                <span class="h4 me-2 text-danger fw-bold">@Model.KhoaHocCanXem.HocPhi.ToString("N0") VND</span>
+            </div>
+            <div class="mb-3">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (Model.SoSaoTrungBinh >= i)
+                    {
+                        <i class="fa-solid fa-star text-warning"></i>
+                    }
+                    else if (Model.SoSaoTrungBinh >= i - 0.5)
+                    {
+                        <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-star text-warning"></i>
+                    }
+                }
+                <span class="ms-2">(@Model.TongluotDanhGia) lượt đánh giá</span>
+            </div>
+
+            
+            
+            <a id="btn-yeuthich"
+               data-id="@Model.KhoaHocCanXem.MaKhoaHoc"
+               class="btn @(Model.DaQuanTam ? "btn-danger text-light" : "btn-outline-secondary") btn-lg mb-3 mt-2">
+                <i class="bi @(Model.DaQuanTam ? "bi-heart-fill" : "bi-heart")"></i>
+                <span class="text">@((Model.DaQuanTam) ? "Đã quan tâm" : "Quan tâm khóa học này")</span>
+            </a>
+
+            @if(Model.DangChoXuLy){ //đã đóng tiền -> không được phép thanh toán nữa
+                <div class="alert alert-success mt-2 ml-2">
+                    Yêu cầu đăng ký của bạn đang chờ xử lý => 
+                    <a asp-action="KhoaHocDaDangKy" class="btn btn-success">Theo dõi ngay</a>
+                </div>
+            }else{
+                <div class="ml-2 mb-2 border-bottom border-1 pb-1 fs-5 text-secondary">
+                    Đăng ký học ngay:
+                </div>
+                <!-- Tabs Payment -->
+                <div class="container mt-1">
+                    <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="momo-tab" data-toggle="tab" href="#momo" role="tab" aria-controls="momo" aria-selected="true">
+                                <img src="~/image/momo.png" style="width:40px; height: 30px;" />
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="vnpay-tab" data-toggle="tab" href="#vnpay" role="tab" aria-controls="vnpay" aria-selected="false">
+                                <img src="~/image/vnpay.png" style="width:40px; height: 30px;" />
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="cash-tab" data-toggle="tab" href="#cash" role="tab" aria-controls="cash" aria-selected="false">
+                                <img src="~/image/money.png" style="width:40px; height: 30px;" />
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-4 border border-top-0" id="paymentTabsContent">
+                        <!-- MOMO Tab -->
+                        <div class="tab-pane fade show active" id="momo" role="tabpanel" aria-labelledby="momo-tab">
+                            <form method="post" asp-area="Student" asp-action="CreatePaymentMomo" asp-controller="Payment" class="mb-3">
+                                <input type="hidden" name="Amount" value="@((int)Model.KhoaHocCanXem.HocPhi)" />
+                                <input type="hidden" name="OrderId" value="@Guid.NewGuid().ToString()" />
+                                <input type="hidden" name="OrderInfo" value="Thanh toán học phí bằng Momo" />
+                                <input type="hidden" name="FullName" value="Thanh toán Momo" />
+                                <input type="hidden" name="ExtraData" value="@Model.KhoaHocCanXem.MaKhoaHoc.ToString()" />
+                                <input type="hidden" name="OrderInfomation" value="Đăng ký @Model.KhoaHocCanXem.TenKhoaHoc + @Model.KhoaHocCanXem.NgayHoc" />
+                                <button type="submit" name="PayUrl" class="btn btn-primary btn-lg me-2">
+                                    <i class="bi bi-wallet2"></i> Thanh toán qua Momo > >
+                                </button>
+                            </form>
+
+                            <form method="post" asp-area="Student" asp-action="CreatePaymentMomo" asp-controller="Payment">
+                                <input type="hidden" name="Amount" value="@((int)(Model.KhoaHocCanXem.HocPhi)*0.5)" />
+                                <input type="hidden" name="OrderId" value="@Guid.NewGuid().ToString()" />
+                                <input type="hidden" name="OrderInfo" value="Thanh toán 50% học phí bằng Momo" />
+                                <input type="hidden" name="FullName" value="Thanh toán momo" />
+                                <input type="hidden" name="ExtraData" value="@Model.KhoaHocCanXem.MaKhoaHoc.ToString()" />
+                                <input type="hidden" name="OrderInfomation" value="Đăng ký @Model.KhoaHocCanXem.TenKhoaHoc + @Model.KhoaHocCanXem.NgayHoc 50" />
+                                <button type="submit" name="PayUrl" class="btn btn-primary btn-lg text-light">
+                                    <i class="bi bi-wallet2"></i> Thanh toán trước 50% (Momo)
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- VNPAY Tab -->
+                        <div class="tab-pane fade" id="vnpay" role="tabpanel" aria-labelledby="vnpay-tab">
+                            <form method="post" asp-area="Student" asp-controller="Payment" asp-action="CreatePaymentUrlVnpay" class="mb-3">
+                                <input type="hidden" name="MaKHDK" value="@Model.KhoaHocCanXem.MaKhoaHoc" />
+                                <input type="hidden" name="Name" value="Vnpay" />
+                                <input type="hidden" name="Amount" value="@((int)Model.KhoaHocCanXem.HocPhi)" />
+                                <input type="hidden" name="OrderDescription" value="@Model.KhoaHocCanXem.MaKhoaHoc @Model.KhoaHocCanXem.TenKhoaHoc" />
+                                <input type="hidden" name="ordertype" value="billpayment" />
+                                <button type="submit" class="btn btn-primary btn-lg me-2">
+                                    <i class="bi bi-credit-card"></i> Thanh toán qua VnPay > >
+                                </button>
+                            </form>
+
+                            <form method="post" asp-area="Student" asp-controller="Payment" asp-action="CreatePaymentUrlVnpay">
+                                <input type="hidden" name="MaKHDK" value="@Model.KhoaHocCanXem.MaKhoaHoc" />
+                                <input type="hidden" name="Name" value="Vnpay" />
+                                <input type="hidden" name="Amount" value="@((int)(Model.KhoaHocCanXem.HocPhi)*0.5)" />
+                                <input type="hidden" name="OrderDescription" value="@Model.KhoaHocCanXem.MaKhoaHoc @Model.KhoaHocCanXem.TenKhoaHoc 50" />
+                                <input type="hidden" name="ordertype" value="billpayment" />
+                                <button type="submit" class="btn btn-primary btn-lg text-light">
+                                    <i class="bi bi-credit-card"></i> Thanh toán trước 50% (VnPay)
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- CASH Tab -->
+                        <div class="tab-pane fade" id="cash" role="tabpanel" aria-labelledby="cash-tab">
+                            <div class="alert alert-info">
+                                <h5>Hướng dẫn thanh toán tiền mặt</h5>
+                                <p>Quý học viên vui lòng đến trực tiếp quầy thu ngân.</p>
+                                <p><strong>Địa chỉ:</strong> Lô E1, Võ Nguyên Giáp, TP. Thủ Đức, TP.HCM</p>
+                                <p><strong>Giờ làm việc:</strong> Thứ 2 - Thứ 7 (8:00 - 17:00)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<!--mo ta khoa hoc-->
+<div class="container">
+    <div class="mt-2 mb-2 fs-3 fw-bold">Mô tả khóa học</div>
+    <div class="border-1 rounded shadow-sm p-3" style="max-height: 350px;">
+        Giờ học cụ thể: @Model.KhoaHocCanXem.GioBatDau - @Model.KhoaHocCanXem.GioKetThuc<br />
+        @Html.Raw(Model.KhoaHocCanXem.MoTa)
+    </div>
+</div>
+<!--soan comment-->
+<div class="container my-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">Gửi đánh giá của bạn</h5>
+            <form asp-action="GuiDanhGia" asp-controller="StudentHome" method="post">
+                <input type="hidden" name="KhoaHocDanhGia" value="@Model.KhoaHocCanXem.MaKhoaHoc" />
+                <input type="hidden" name="UserDanhGia" value="@Model.UserID" />
+
+                <div class="mb-4 text-center">
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="SoSaoDanhGia" value="5" />
+                        <label for="star5"><i class="fa-solid fa-face-laugh-beam"></i></label>
+
+                        <input type="radio" id="star4" name="SoSaoDanhGia" value="4" />
+                        <label for="star4"><i class="fa-solid fa-face-smile"></i></label>
+
+                        <input type="radio" id="star3" name="SoSaoDanhGia" value="3" />
+                        <label for="star3"><i class="fa-solid fa-face-meh"></i></label>
+
+                        <input type="radio" id="star2" name="SoSaoDanhGia" value="2" />
+                        <label for="star2"><i class="fa-solid fa-face-frown"></i></label>
+
+                        <input type="radio" id="star1" name="SoSaoDanhGia" value="1" required />
+                        <label for="star1"><i class="fa-solid fa-face-angry"></i></label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nêu ý kiến của bạn:</label>
+                    <textarea class="form-control shadow-sm" name="NoiDung" rows="3" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary rounded-pill fw-bold shadow-sm">
+                    <i class="fa-solid fa-paper-plane me-1"></i> Gửi đánh giá
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h4 class="fw-bold mb-3 text-secondary">Đánh giá khóa học</h4>
+    @if (Model.dsDanhGia != null && Model.dsDanhGia.Any())
+    {
+        <div class="mb-4">
+            <div style="max-height: 400px; overflow-y: auto;" class="mb-4 pe-2">
+                @foreach (var dg in Model.dsDanhGia)
+                {
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-2">
+                                <img src="data:image/png;base64,@Convert.ToBase64String(dg.User.Avatar)"
+                                     class="rounded-circle me-3" style="width: 50px; height: 50px;" />
+
+                                <div>
+                                    <strong class="d-block">@dg.User.HoTen</strong>
+                                    <small class="text-muted">@dg.NgayDanhGia.ToString("dd/MM/yyyy")</small>
+                                </div>
+
+                                <button class="btn btn-sm btn-outline-danger position-absolute"
+                                        style="top: 20px; right: 10px;"
+                                        title="Báo cáo đánh giá này"
+                                        onclick="baoCaoDanhGia('@dg.MaDanhGia')">
+                                    <i class="fa-solid fa-flag"></i>
+                                </button>
+                            </div>
+                            <div class="text-warning mb-1">
+                                @for (int i = 1; i <= dg.SoSaoDanhGia; i++)
+                                {
+                                    <i class="fa-solid fa-star"></i>
+                                }
+                                @for (int i = dg.SoSaoDanhGia + 1; i <= 5; i++)
+                                {
+                                    <i class="fa-regular fa-star"></i>
+                                }
+                            </div>
+                            <p>@dg.NoiDungDanhGia</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Khóa học hiện đang không có đánh giá nào!</div>
+    }
+</div>
+
+<div id="form-bao-cao" class="container my-5 d-none">
+    <div class="card border-danger shadow-sm">
+        <div class="card-header bg-danger text-white fw-bold">
+            Tố cáo đánh giá
+        </div>
+        <div class="card-body">
+
+            <!-- copy comment bị tố cáo -->
+            <div class="card mb-4 shadow-sm bg-light">
+                <div class="card-body" id="commentCopy">
+                </div>
+            </div>
+
+            <form method="post" asp-action="BaoCaoDanhGia">
+                <input type="hidden" name="MaDanhGia" id="inputMaDanhGia" />
+                <input type="hidden" name="MaKhoaHoc" value="@Model.KhoaHocCanXem.MaKhoaHoc"></input>
+                <div class="mb-3">
+                    <label for="LyDo" class="form-label fw-semibold">Lý do tố cáo:</label>
+                    <textarea class="form-control" name="LyDo" id="LyDo" rows="3" required></textarea>
+                </div>
+
+                <div class="text-end">
+                    <button type="button" class="btn btn-secondary me-2" onclick="dongFormBaoCao()">Hủy</button>
+                    <button type="submit" class="btn btn-danger fw-bold">Gửi tố cáo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    
+
+    function changeImage(event, src) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        const CheckDaDangNhap = @(User.Identity.IsAuthenticated.ToString().ToLower());
+
+        document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("btn-yeuthich");
+
+        btn.addEventListener("click", function () {
+            if (!CheckDaDangNhap) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Vui lòng đăng nhập!',
+                    text: 'Bạn hãy đăng nhập để quan tâm khóa học này.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+            const khoaHocId = btn.getAttribute("data-id");
+
+            // đổi design
+            const icon = btn.querySelector("i");
+            const text = btn.querySelector(".text");
+
+             btn.classList.toggle("btn-outline-secondary");
+             btn.classList.toggle("btn-danger");
+
+            // Chỉ thêm text-light nếu là btn-danger
+            if (btn.classList.contains("btn-danger")) {
+                btn.classList.add("text-light");
+                text.textContent = "Đã quan tâm";
+            } else {
+                btn.classList.remove("text-light");
+                text.textContent = "Quan tâm khóa học này";
+            }
+
+            icon.classList.toggle("bi-heart");
+            icon.classList.toggle("bi-heart-fill");
+
+            //ajax
+            fetch(`/Student/StudentHome/ThemVaoDSQuanTam?MaKhoaHoc=${khoaHocId}`)
+                .catch(() => alert("Có lỗi xảy ra"));
+        });
+    });
+
+
+    $(document).ready(function () {
+    @if (TempData["ThongBaoDangKy"] != null)
+    {
+        <text>
+                            Swal.fire({
+                                toast: true,
+                                position: 'bottom-end',
+                                icon: 'success',
+                                title: '@Html.Raw(TempData["ThongBaoDangKy"])',
+                                showConfirmButton: false,
+                                timer: 4000,
+                                timerProgressBar: true,
+                                background: '#f0fff0',
+                                color: '#2f855a',
+                                iconColor: '#38a169',
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
+        </text>
+    }
+    });
+
+    function baoCaoDanhGia(maDanhGia) {
+        const CheckDaDangNhap = @(User.Identity.IsAuthenticated.ToString().ToLower());
+        if (!CheckDaDangNhap) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Vui lòng đăng nhập!',
+                    text: 'Bạn hãy đăng nhập để báo cáo bình luận này.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+        const cardBody = event.target.closest(".card-body");
+
+        // Clone đánh giá vào form
+        const clone = cardBody.cloneNode(true);
+
+        // Xóa nút tố cáo trong bản clone
+        const button = clone.querySelector("button");
+        if (button) button.remove();
+
+        // Gán nội dung vào form
+        document.getElementById("commentCopy").innerHTML = "";
+        document.getElementById("commentCopy").appendChild(clone);
+
+        // Gán mã đánh giá
+        document.getElementById("inputMaDanhGia").value = maDanhGia;
+
+        // Hiển thị form
+        document.getElementById("form-bao-cao").classList.remove("d-none");
+        document.getElementById("form-bao-cao").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function dongFormBaoCao() {
+        document.getElementById("form-bao-cao").classList.add("d-none");
+        document.getElementById("LyDo").value = "";
+        document.getElementById("inputMaDanhGia").value = "";
+        document.getElementById("commentCopy").innerHTML = "";
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+            const alertTitle = '@TempData["Title"]';
+            const alertType = '@TempData["Type"]';
+            const alertMessage = '@TempData["Message"]';
+
+            if (alertMessage) {
+                Swal.fire({
+                    icon: alertType,
+                    title: alertTitle,
+                    html: alertMessage,
+                    confirmButtonText: 'Đóng',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+        });
+
+        //Thông báo trạng thái đóng tiền momo
+        document.addEventListener("DOMContentLoaded", function () {
+            const momoSuccess = @Html.Raw(Json.Serialize(TempData["MomoSuccess"]));
+            if (momoSuccess) {
+                let timerInterval;
+                Swal.fire({
+                    title: 'Thành công!',
+                    html: momoSuccess,
+                    icon: 'success',
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        const swalContainer = Swal.getPopup();
+                        const swalTimer = Swal.getTimerLeft();
+
+                        swalContainer.addEventListener('mouseenter', Swal.stopTimer);
+                        swalContainer.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const momoCancel = "@TempData["MomoCancel"]";
+            if (momoCancel) {
+                let timerInterval;
+                Swal.fire({
+                    title: 'Hủy thanh toán!',
+                    html: momoCancel,
+                    icon: 'error',
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        const swalContainer = Swal.getPopup();
+                        const swalTimer = Swal.getTimerLeft();
+
+                        swalContainer.addEventListener('mouseenter', Swal.stopTimer);
+                        swalContainer.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+        });
+
+        
+
+        //Thông báo trạng thái đóng tiền vnpay
+        document.addEventListener("DOMContentLoaded", function () {
+            const VnpaySuccess = @Html.Raw(Json.Serialize(TempData["VnpaySuccess"]));
+            if (VnpaySuccess) {
+                let timerInterval;
+                Swal.fire({
+                    title: 'Thành công!',
+                    html: VnpaySuccess,
+                    icon: 'success',
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        const swalContainer = Swal.getPopup();
+                        const swalTimer = Swal.getTimerLeft();
+
+                        swalContainer.addEventListener('mouseenter', Swal.stopTimer);
+                        swalContainer.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const VnpayCancel = @Html.Raw(Json.Serialize(TempData["VnpayCancel"]));
+            if (VnpayCancel) {
+                let timerInterval;
+                Swal.fire({
+                    title: 'Hủy thanh toán!',
+                    html: VnpayCancel,
+                    icon: 'error',
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        const swalContainer = Swal.getPopup();
+                        const swalTimer = Swal.getTimerLeft();
+
+                        swalContainer.addEventListener('mouseenter', Swal.stopTimer);
+                        swalContainer.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+        });
+
+        //Có khóa học trùng
+        document.addEventListener("DOMContentLoaded", function () {
+            const RegisterFail = @Html.Raw(Json.Serialize(TempData["RegisterFail"]));
+            if (RegisterFail) {
+                Swal.fire({
+                    title: 'Đăng ký bị trùng giờ học!',
+                    html: RegisterFail,
+                    icon: 'error',
+                    width: '700px',
+                    confirmButtonText: 'Đóng',
+                });
+            }
+        });
+</script>

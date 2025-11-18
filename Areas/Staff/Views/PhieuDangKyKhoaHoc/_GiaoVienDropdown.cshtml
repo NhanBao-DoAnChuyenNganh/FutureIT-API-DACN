@@ -1,0 +1,13 @@
+﻿@model DoAnCoSo_Web.Areas.Staff.ViewModels.TaoLopViewModel
+
+<div class="form-group row">
+    <label asp-for="SelectedGiaoVienId" class="col-sm-2 col-form-label">Giáo viên</label>
+    <div class="col-sm-10">
+        <select asp-for="SelectedGiaoVienId"
+                asp-items="Model.DanhSachGiaoVien"
+                class="form-control">
+            <option value="">-- Chọn giáo viên --</option>
+        </select>
+        <span asp-validation-for="SelectedGiaoVienId" class="text-danger"></span>
+    </div>
+</div>

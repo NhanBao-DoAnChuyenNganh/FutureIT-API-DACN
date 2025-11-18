@@ -1,0 +1,169 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Thông tin học viên";
+}
+
+<style>
+    .avatar-img:hover {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+    }
+
+    table.dataTable thead th {
+        background-color: #007BFF !important;
+        color: white !important;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Thông tin chi tiết học viên</h4>
+        </div>
+        <div style="background: linear-gradient(140deg, rgba(179, 217, 255, 1) 0%, rgba(153, 204, 255, 1) 50%, rgba(128, 191, 255, 1) 100%);" class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <img src="@(Model.Avatar != null ? $"data:image/png;base64,{Convert.ToBase64String(Model.Avatar)}" : "/image/avatar.png")"
+                         alt="Avatar"
+                         class="img-thumbnail rounded-circle avatar-img"
+                         style="width: 200px; height: 200px; object-fit: cover;" />
+                </div>
+                <div class="col-md-8">
+                    <h2 class="mb-4">@Model.HoTen</h2>
+                    <p class="mb-3"><strong>Địa chỉ:</strong> @Model.DiaChi</p>
+                    <p class="mb-3"><strong>Email:</strong> @Model.Email</p>
+                    <p class="mb-3"><strong>Số điện thoại:</strong> @Model.SDT</p>
+                    <div class="mt-4">
+                        <a asp-action="QuanLyStudent" asp-controller="AdminHome" class="btn btn-secondary">Quay lại</a>
+                        <a asp-action="ChinhSua" asp-controller="AdminHome" asp-route-id="@Model.Id" class="btn btn-primary">Chỉnh Sửa</a>
+                        <a asp-action="Xoa" asp-controller="AdminHome" asp-route-Id="@Model.Id" class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa nhân viên này?')">Xóa</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<ul class="nav nav-tabs" id="studentTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="phieu-tab" data-bs-toggle="tab" data-bs-target="#phieu" type="button" role="tab" aria-controls="phieu" aria-selected="true">
+            📄 Phiếu đăng ký
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="lop-tab" data-bs-toggle="tab" data-bs-target="#lop" type="button" role="tab" aria-controls="lop" aria-selected="false">
+            🏫 Lớp học đang tham gia
+        </button>
+    </li>
+</ul>
+<div class="tab-content border border-top-0 p-3 bg-white" id="studentTabContent">
+    <!-- Tab Phiếu đăng ký -->
+    <div class="tab-pane fade show active" id="phieu" role="tabpanel" aria-labelledby="phieu-tab">
+        @if (Model.PhieuDangKyKhoaHoc != null && Model.PhieuDangKyKhoaHoc.Count > 0)
+        {
+            <table id="example1" class="table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Khóa học</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái đăng ký</th>
+                        <th>Trạng thái thanh toán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pd in Model.PhieuDangKyKhoaHoc)
+                    {
+                        <tr>
+                            <td>@pd.KhoaHoc?.TenKhoaHoc</td>
+                            <td>@pd.NgayDangKy.ToString("dd/MM/yyyy")</td>
+                            <td>@pd.TrangThaiDangKy</td>
+                            <td>@pd.TrangThaiThanhToan</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Không có phiếu đăng ký nào.</p>
+        }
+    </div>
+
+    <!-- Tab Lớp học -->
+    <div class="tab-pane fade" id="lop" role="tabpanel" aria-labelledby="lop-tab">
+        @if (Model.ChiTietHocTap != null && Model.ChiTietHocTap.Count > 0)
+        {
+            <table id="example2" class="table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Tên lớp</th>
+                        <th>Ngày khai giảng</th>
+                        <th>Ngày kết thúc</th>
+                        <th>Khóa học</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ct in Model.ChiTietHocTap)
+                    {
+                        <tr>
+                            <td>@ct.LopHoc?.TenLopHoc</td>
+                            <td>@ct.LopHoc?.NgayKhaiGiang.ToString("dd/MM/yyyy")</td>
+                            <td>@ct.LopHoc?.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+                            <td>@ct.LopHoc?.KhoaHoc?.TenKhoaHoc</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Chưa tham gia lớp học nào.</p>
+        }
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+    new DataTable('#example1',{
+         columnDefs: [
+        { targets: 0, searchable: true },
+        { targets: [1], searchable: false }
+      ],
+        language: {
+            search: "Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: {
+                previous: "Trước",
+                next: "Sau"
+            },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
+</script>
+<script>
+    new DataTable('#example2',{
+         columnDefs: [
+        { targets: 0, searchable: true },
+        { targets: [1], searchable: false }
+      ],
+        language: {
+            search: "Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: {
+                previous: "Trước",
+                next: "Sau"
+            },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
+</script>

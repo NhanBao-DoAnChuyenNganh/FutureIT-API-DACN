@@ -1,0 +1,54 @@
+﻿@model List<ChiTietHocTap>
+@{
+    ViewBag.Title = "Danh sách học viên lớp " + ViewBag.TenLop;
+}
+
+<h2>@ViewBag.Title</h2>
+<p><strong>Giáo viên phụ trách:</strong> @ViewBag.TenGiangVien</p>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<table id="example" class="table table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Điểm</th>
+            <th>Nhận xét giáo viên</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ct in Model)
+        {
+            <tr>
+                <td>@ct.User.HoTen</td>
+                <td>@ct.User.Email</td>
+                <td>@(ct.DiemTongKet.HasValue ? ct.DiemTongKet.Value.ToString("0.00") : "-")</td>
+                <td>@(!string.IsNullOrWhiteSpace(ct.NhanXetCuaGiaoVien) ? ct.NhanXetCuaGiaoVien : "-")</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+    new DataTable('#example',{
+         columnDefs: [
+        { targets: 0, searchable: true },
+        { targets: [1, 2,3], searchable: false }
+      ],
+        language: {
+            search: "Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: {
+                previous: "Trước",
+                next: "Sau"
+            },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
+</script>

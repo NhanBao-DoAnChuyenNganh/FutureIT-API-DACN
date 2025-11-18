@@ -1,0 +1,70 @@
+﻿@model DoAnCoSo_Web.Areas.Staff.ViewModels.ChiTietKhoaHocViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết khóa học";
+}
+
+<h1>@Model.KhoaHoc.TenKhoaHoc</h1>
+
+<!-- Hiển thị học phí -->
+<p><strong>Học phí:</strong> @Model.KhoaHoc.HocPhi.ToString("N0") VND</p>
+
+<!-- Hiển thị mô tả khóa học -->
+<p><strong>Mô tả:</strong></p>
+<p>@Html.Raw(Model.KhoaHoc.MoTa)</p>
+<p><strong>Ngày Học:</strong>@Model.KhoaHoc.NgayHoc</p>
+<p><strong>Giờ bắt đầu:</strong>@Model.KhoaHoc.GioBatDau</p>
+<p><strong>Giờ kết thúc:</strong>@Model.KhoaHoc.GioKetThuc</p>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h4>Hình đại diện</h4>
+        @{
+            var avatar = Model.HinhAnhKhoaHoc?.FirstOrDefault(h => h.LaAnhDaiDien);
+            if (avatar != null)
+            {
+                <img src="data:image/jpg;base64,@Convert.ToBase64String(avatar.NoiDungHinh)"
+                     class="img-fluid rounded"
+                     style="width: 100%; max-width: 300px; height: 200px; object-fit: cover;"
+                     alt="Hình đại diện" />
+            }
+            else
+            {
+                <div class="alert alert-warning">Khóa học này chưa có hình đại diện.</div>
+            }
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h4>Hình ảnh bổ sung</h4>
+
+        @{
+            var additional = Model.HinhAnhKhoaHoc?.Where(h => !h.LaAnhDaiDien).Take(3).ToList();
+        }
+
+        @if (additional != null && additional.Any())
+        {
+            <div class="d-flex gap-3 flex-wrap">
+                @foreach (var img in additional)
+                {
+                    <div>
+                        <img src="data:image/jpg;base64,@Convert.ToBase64String(img.NoiDungHinh)"
+                             class="img-thumbnail"
+                             style="width: 200px; height: 120px; object-fit: cover;"
+                             alt="Hình bổ sung" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-2">Chưa có hình ảnh bổ sung cho khóa học.</div>
+        }
+    </div>
+</div>
+
+
+<!-- Thêm các nút hoặc liên kết khác nếu cần -->
+<a href="@Url.Action("Index", "KhoaHoc")" class="btn btn-secondary">Quay lại danh sách khóa học</a>

@@ -1,0 +1,22 @@
+﻿@model DoAnCoSo_Web.Models.ChuyenNganh
+@{
+    ViewData["Title"] = "Chỉnh sửa chuyên ngành";
+}
+
+<h2>Chỉnh sửa phòng học</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="MaChuyenNganh" />
+
+    <div class="mb-3">
+        <label asp-for="TenChuyenNganh" class="form-label">Tên chuyên ngành</label>
+        <input asp-for="TenChuyenNganh" class="form-control" />
+        <span asp-validation-for="TenChuyenNganh" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

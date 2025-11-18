@@ -1,0 +1,113 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model DoAnCoSo_Web.Models.User
+@{
+    ViewData["Title"] = "Chỉnh sửa Staff";
+}
+
+<style>
+    body {
+        background: linear-gradient(135deg, #e6f3fa 0%, #d1e8f5 100%); /* Gradient xanh nhạt */
+        min-height: 100vh;
+    }
+    .card {
+        border: none;
+        border-radius: 15px;
+        transition: box-shadow 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Bóng khi hover */
+    }
+    .avatar-img {
+        transition: transform 0.3s ease;
+    }
+    .avatar-img:hover {
+        transform: scale(1.1);
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="card-title text-center mb-4 fw-bold text-primary">Chỉnh sửa nhân viên</h2>
+                    <hr class="my-4" />
+                    <form asp-action="ChinhSua" method="post" enctype="multipart/form-data" onsubmit="return confirm('Bạn có chắc muốn lưu thay đổi?')">
+                        <input asp-for="Id" type="hidden" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="HoTen" class="form-label">Họ và tên</label>
+                                <input asp-for="HoTen" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label asp-for="SDT" class="form-label">Số điện thoại</label>
+                                <input asp-for="SDT" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+                                <input asp-for="DiaChi" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">Mật khẩu mới (nếu muốn đổi)</label>
+                                <input name="password" type="password" class="form-control" />
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <label class="form-label">Avatar hiện tại</label>
+                                <img src="@(Model.Avatar != null
+                                    ? $"data:image/png;base64,{Convert.ToBase64String(Model.Avatar)}"
+                                    : "/image/avatar.png")"
+                                     alt="avatar"
+                                     class="img-thumbnail rounded-circle avatar-img"
+                                     style="width:120px; height:120px; object-fit:cover;" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-6">
+                                <label for="imageurl" class="form-label">Ảnh đại diện mới</label>
+                                <input name="imageurl" type="file" class="form-control" accept="image/*" />
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
+                            </div>
+                            <div class="col-6">
+                                <a asp-action="Display" asp-controller="AdminHome" asp-route-Id="@Model.Id" class="btn btn-secondary w-100">Hủy</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

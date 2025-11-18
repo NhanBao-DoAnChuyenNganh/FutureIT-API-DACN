@@ -1,0 +1,109 @@
+﻿@model IEnumerable<DoAnCoSo_Web.Areas.Staff.ViewModels.LopHocViewModel>
+@{
+	ViewData["Title"] = "Quản lý lớp học";
+}
+
+<style>
+	/* Căn trái tất cả nội dung trong bảng */
+	#example td,
+	#example th {
+		text-align: left !important;
+	}
+</style>
+<a asp-action="Index" asp-controller="StaffHome" class="btn btn-secondary mb-3">Quay lại</a>
+<h2 class="mb-4">Danh sách lớp học</h2>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+
+<table id="example" class="table table-striped" style="width:100%">
+	<thead class="table-dark">
+		<tr>
+			<th>Mã lớp</th>
+			<th>Tên lớp</th>
+			<th>Khóa học</th>
+			<th>Phòng học</th>
+			<th>Ngày học</th>
+			<th>Ngày khai giảng</th>
+			<th>Ngày kết thúc</th>
+			<th>Số lượng học viên</th> 
+			<th>Chức năng</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var vm in Model)
+		{
+			<tr>
+				<td>@vm.LopHoc.MaLopHoc</td>
+				<td>@vm.LopHoc.TenLopHoc</td>
+				<td>@vm.LopHoc.KhoaHoc?.TenKhoaHoc</td>
+				<td>@vm.LopHoc.PhongHoc?.TenPhongHoc</td>
+				<td>@vm.LopHoc.KhoaHoc.NgayHoc</td>
+				<td>@vm.LopHoc.NgayKhaiGiang.ToString("dd/MM/yyyy")</td>
+				<td>@vm.LopHoc.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+				<td>@vm.SoLuongHocVien</td> 
+				<td>
+					<a asp-area="Staff" asp-controller="LopHoc" asp-action="Edit" asp-route-id="@vm.LopHoc.MaLopHoc" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm">
+						<i class="fa-solid fa-pen-to-square"></i>Sửa
+					</a>
+					<button class="btn btn-danger fw-bold rounded-pill shadow-sm delete-btn" onclick="xoa(@vm.LopHoc.MaLopHoc,this)">
+						<i class="fa-solid fa-trash"></i> Xóa
+					</button>
+					<a asp-area="Staff" asp-controller="LopHoc" asp-action="DanhSachHocVien" asp-route-id="@vm.LopHoc.MaLopHoc" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm">
+						Danh Sách Học Viên
+					</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+@*<a asp-action="Create" class="btn btn-primary mb-3">+Thêm lớp học mới</a>*@
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+	new DataTable('#example',{
+		 columnDefs: [
+		{ targets: 1, searchable: true },
+		{ targets: [0, 2,3,4,5,6,7], searchable: false }
+	  ],
+		language: {
+			search: "Tìm kiếm:",
+			lengthMenu: "Hiển thị _MENU_ dòng",
+			info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+			paginate: {
+				previous: "Trước",
+				next: "Sau"
+			},
+			zeroRecords: "Không tìm thấy kết quả phù hợp"
+		}
+	});
+</script>
+<script>
+	function xoa(id, element) {
+		if (!confirm("Bạn có chắc chắn muốn xóa lớp học này không?")) {
+			return;
+		}
+
+		$.ajax({
+			url: `/Staff/LopHoc/Delete`,
+			type: "POST",
+			data: { id: id },
+			success: function (response) {
+				if (response.success) {
+					$(element).closest("tr").fadeOut(500, function () {
+						$(this).remove();
+					});
+				} else {
+					alert(response.message || "Không thể xóa lớp học này!");
+				}
+			},
+			error: function () {
+				alert("Đã xảy ra lỗi khi xóa lớp học!");
+			}
+		});
+	}
+</script>

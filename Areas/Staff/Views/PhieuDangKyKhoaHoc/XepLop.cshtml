@@ -1,0 +1,55 @@
+﻿@model List<DoAnCoSo_Web.Models.LopHoc>
+@{
+    ViewBag.Title = "Xếp lớp";
+    var khoaHoc = ViewBag.KhoaHoc as DoAnCoSo_Web.Models.KhoaHoc;
+}
+
+<h2>Xếp lớp cho khóa học: @khoaHoc?.TenKhoaHoc</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+@if (Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên lớp</th>
+                <th>Số lượng học viên</th>
+                <th>Ngày khai giảng</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var lop in Model)
+            {
+                <tr>
+                    <td>@lop.TenLopHoc</td>
+                    <td>@lop.ChiTietHocTap.Count</td>
+                    <td>@lop.NgayKhaiGiang.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <form asp-action="XepLop" method="post">
+                            <input type="hidden" name="maKhoaHoc" value="@lop.KhoaHocMaKhoaHoc" />
+                            <input type="hidden" name="maLopHoc" value="@lop.MaLopHoc" />
+                            <button type="submit" class="btn btn-success">Xếp vào lớp này</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Không có lớp học nào hiện tại có chỗ trống.</p>
+}
+
+<hr />
+
+<h4>Không có lớp phù hợp?</h4>
+<form asp-action="TaoLop" method="get">
+    <input type="hidden" name="maKhoaHoc" value="@khoaHoc?.MaKhoaHoc" />
+    <button type="submit" class="btn btn-primary">Tạo lớp mới và xếp học viên</button>
+</form>

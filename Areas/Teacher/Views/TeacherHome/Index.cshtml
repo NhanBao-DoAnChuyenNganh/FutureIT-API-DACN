@@ -1,0 +1,181 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+@{
+    var statusMessage = TempData["StatusMessage"] as string;
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+@model DoAnCoSo_Web.Areas.Teacher.ViewModels.IndexViewModels
+<style>
+    .thong_tin{
+
+    }
+
+    .thong_tin:hover{
+        transform: scale(1.1);
+        z-index: 10;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+</style>
+<head>
+    <title>Trang giảng viên</title>
+</head>
+<div class="container-fluid mt-2">
+    <ul class="nav nav-tabs text-center d-flex justify-content-center" id="tkbTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="grid-tab" data-toggle="tab" href="#tkb-grid" role="tab" aria-controls="tkb-grid" aria-selected="true">
+                <i class="bi bi-calendar-week me-2"></i>Xem thời khóa biểu tuần
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="list-tab" data-toggle="tab" href="#tkb-list" role="tab" aria-controls="tkb-list" aria-selected="false">
+                <i class="bi bi-list-check me-2"></i>Xem danh sách lớp
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tkbTabContent">
+
+        <div class="tab-pane fade show active" id="tkb-grid" role="tabpanel" aria-labelledby="grid-tab">
+            @* Dạng tkb *@
+            <div class="mt-4">
+                <div class="container-fluid">
+                    <div class="mt-5">
+                        @{
+                            DateTime currentWeek = (DateTime)ViewBag.CurrentWeekStart;
+                            DateTime prevWeek = currentWeek.AddDays(-7);
+                            DateTime nextWeek = currentWeek.AddDays(7);
+                        }
+                        <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                            <a asp-action="Index" asp-route-startDate="@prevWeek.ToString("yyyy-MM-dd")" class="btn btn-outline-primary">
+                                <i class="bi bi-chevron-left"></i> Tuần trước
+                            </a>
+                            <div class="text-center fs-2 fw-bold mt-1 text-primary">THỜI KHÓA BIỂU TUẦN</div>
+                            <a asp-action="Index" asp-route-startDate="@nextWeek.ToString("yyyy-MM-dd")" class="btn btn-outline-primary">
+                                Tuần sau <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center align-middle">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Thứ</th>
+                                        @for (int thu = 2; thu <= 7; thu++)
+                                        {
+                                            var day = currentWeek.AddDays(thu - 2);
+                                            <th>Thứ @(thu)<br /><span class="text-muted small">(@day.ToString("dd/MM"))</span></th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var caHocList = new List<string> { "Sáng", "Chiều" };
+                                        for (int caIndex = 0; caIndex < caHocList.Count; caIndex++)
+                                        {
+                                            string ca = caHocList[caIndex];
+                                            <tr>
+                                                <td class="fw-bold">@ca</td>
+
+                                                @for (int thu = 2; thu <= 7; thu++)
+                                                {
+                                                    DateTime ngayTrongTuan = currentWeek.AddDays(thu - 2); // do T2 là ngày bắt đầu
+                                                    <td>
+                                                        @foreach (var item in Model.listLopHocDangDay)
+                                                        {
+                                                            if (item.LopHoc.NgayKhaiGiang.Date <= ngayTrongTuan.Date && item.LopHoc.NgayKetThuc.Date >= ngayTrongTuan.Date)
+                                                            {
+                                                                var ngayHoc = item.LopHoc.KhoaHoc.NgayHoc;
+                                                                if (ngayHoc.Contains(ca) && ngayHoc.Contains(thu.ToString()))
+                                                                {
+                                                                    <a asp-action="XemChiTietLop" asp-route-MaLop="@item.LopHoc.MaLopHoc"
+                                                                       class="d-block p-2 rounded text-start thong_tin"
+                                                                       style="background-color: antiquewhite;">
+                                                                        <div class="small fw-bold text-dark pb-1">
+                                                                            @item.LopHoc.KhoaHoc.TenKhoaHoc
+                                                                        </div>
+                                                                        <div class="text-primary small fw-semibold">
+                                                                            @item.LopHoc.KhoaHoc.GioBatDau - @item.LopHoc.KhoaHoc.GioKetThuc<br />
+                                                                            Phòng: @item.LopHoc.PhongHoc.TenPhongHoc
+                                                                        </div>
+                                                                        <div class=" text-center font-italic small text-dark text-opacity-50">
+                                                                            ( Nhấn vào để xem chi tiết )
+                                                                        </div>
+                                                                    </a>
+                                                                }
+                                                            }
+                                                        }
+                                                    </td>
+                                                }
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="fw-bold text-center fs-5">
+                                Từ ngày @currentWeek.ToString("dd/MM/yyyy") đến @currentWeek.AddDays(6).ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tkb-list" role="tabpanel" aria-labelledby="list-tab">
+            @* Dạng danh sách *@
+            <div class="mt-4">
+                <div class="container">
+                    <div class="row text-center fs-2 fw-bold mt-3 text-primary">
+                        <div>CÁC LỚP HỌC ĐANG DIỄN RA</div>
+                    </div>
+
+                    <div class="mt-4">
+                        @foreach (var item in Model.listLopHocDangDay)
+                        {
+                            var tongNgay = (item.LopHoc.NgayKetThuc - item.LopHoc.NgayKhaiGiang).TotalDays;
+                            var hienTai = (DateTime.Now - item.LopHoc.NgayKhaiGiang).TotalDays;
+                            var percent = (int)(hienTai / tongNgay * 100);
+
+                            <div class="card shadow-sm mb-4 border-0">
+                                <div class="row g-0">
+                                    <div class="col-3">
+                                        <img src="data:image/jpg;base64,@Convert.ToBase64String(item.LopHoc.KhoaHoc.HinhAnhKhoaHoc.FirstOrDefault(h => h.LaAnhDaiDien).NoiDungHinh)"
+                                             class="img-fluid rounded-start h-100 w-100 object-fit-cover" />
+                                    </div>
+                                    <div class="col-6 p-3">
+                                        <h5 class="card-title text-dark">@item.LopHoc.KhoaHoc.TenKhoaHoc - @item.LopHoc.KhoaHoc.NgayHoc</h5>
+                                        <p class="mb-1"><strong>Giờ học:</strong> @item.LopHoc.KhoaHoc.GioBatDau - @item.LopHoc.KhoaHoc.GioKetThuc</p>
+                                        <p class="mb-2"><strong>Thời gian:</strong> @item.LopHoc.NgayKhaiGiang.ToString("dd/MM/yyyy") - @item.LopHoc.NgayKetThuc.ToString("dd/MM/yyyy")</p>
+
+                                        <div class="progress" role="progressbar" aria-label="Tiến độ" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-success" style="width: @percent%;">@percent%</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 d-flex align-items-center justify-content-center">
+                                        <a asp-action="XemChiTietLop" asp-route-MaLop="@item.LopHoc.MaLopHoc" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">Xem chi tiết lớp</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

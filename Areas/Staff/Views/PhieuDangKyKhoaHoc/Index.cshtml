@@ -1,0 +1,145 @@
+﻿@model DoAnCoSo_Web.Areas.Staff.ViewModels.DanhSachKhoaHocViewModel
+
+@{
+    ViewData["Title"] = "Danh sách khóa học và phiếu đăng ký";
+}
+<a asp-action="Index" asp-controller="StaffHome" class="btn btn-secondary mb-3">Quay lại</a>
+<title>@ViewData["Title"]</title>
+<h2>@ViewData["Title"]</h2>
+<style>
+    /* Căn trái tất cả nội dung trong bảng */
+    #exampleChuaXepLop td,
+    #exampleChuaXepLop th {
+        text-align: left !important;
+    }
+
+    #exampleDaXepLop td,
+    #exampleDaXepLop th {
+        text-align: left !important;
+    }
+</style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="chuaXepLop-tab" data-bs-toggle="tab" href="#chuaXepLop" role="tab" aria-controls="chuaXepLop" aria-selected="true">Phiếu chờ xử lý</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="daXepLop-tab" data-bs-toggle="tab" href="#daXepLop" role="tab" aria-controls="daXepLop" aria-selected="false">Phiếu đã xếp lớp</a>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="myTabContent">
+    <!-- Tab 1: Phiếu Chờ Xử Lý -->
+    <div class="tab-pane fade show active" id="chuaXepLop" role="tabpanel" aria-labelledby="chuaXepLop-tab">
+        <table id="exampleChuaXepLop" class="table table-striped" style="width:100%">
+            <thead class="table-dark">
+                <tr>
+                    <th>Tên khóa học</th>
+                    <th>Ngày học</th>
+                    <th>Số lượng phiếu đăng ký chờ xử lý</th>  
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DanhSachChuaXepLop)
+                {
+                    <tr>
+                        <td>@item.TenKhoaHoc</td>
+                        <td>@item.NgayHoc</td>
+                        <td>@item.SoLuongPhieuDangKy</td>
+                        <td>
+                            <div class="d-flex flex-column flex-md-row gap-2">
+                               @* @if (item.SoLuongPhieuDangKy >= 7)
+                                {
+                                    <a href="@Url.Action("XepLop", "PhieuDangKyKhoaHoc", new { maKhoaHoc = item.MaKhoaHoc })" class="btn btn-success btn-sm">Xếp lớp |</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa đủ số lượng để xếp lớp |</span>
+                                }*@
+                                <a href="@Url.Action("XepLop", "PhieuDangKyKhoaHoc", new { maKhoaHoc = item.MaKhoaHoc })" class="btn btn-success btn-sm">Xếp lớp </a>
+                                
+                                <a asp-controller="PhieuDangKyKhoaHoc" asp-action="DanhSachPhieuDangKyChoXuLy" asp-route-maKhoaHoc="@item.MaKhoaHoc" class="btn btn-primary btn-sm">Xem danh sách</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab 2: Phiếu Đã Xếp Lớp -->
+    <div class="tab-pane fade" id="daXepLop" role="tabpanel" aria-labelledby="daXepLop-tab">
+        <table id="exampleDaXepLop" class="table table-striped" style="width:100%">
+            <thead class="table-dark">
+                <tr>
+                    <th>Tên khóa học</th>
+                    <th>Ngày Học</th>
+                    <th>Số lượng phiếu đã xếp lớp</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DanhSachDaXepLop)
+                {
+                    <tr>
+                        <td>@item.TenKhoaHoc</td>
+                        <td>@item.NgayHoc</td>
+                        <td>@item.SoLuongPhieuDangKy</td>
+                        <td>
+                            <a asp-controller="PhieuDangKyKhoaHoc" asp-action="DanhSachPhieuDangKyDaXepLop" asp-route-maKhoaHoc="@item.MaKhoaHoc" class="btn btn-primary btn-sm">Xem danh sách</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<a href="@Url.Page("/Students/AddStudent", new { area = "Staff" })" class="btn btn-primary mb-3">Thêm học viên và phiếu đăng ký</a>
+<a asp-controller="PhieuDangKyKhoaHoc" asp-action="ThemPhieuDangKyTheoGmail" class="btn btn-primary mb-3">Tìm gmail và thêm vào phiếu đăng ký</a>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+    new DataTable('#exampleChuaXepLop', {
+        columnDefs: [
+            { targets: 0, searchable: true },
+            { targets: [1, 2], searchable: false }
+        ],
+        language: {
+            search: "Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: {
+                previous: "Trước",
+                next: "Sau"
+            },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
+
+    new DataTable('#exampleDaXepLop', {
+        columnDefs: [
+            { targets: 0, searchable: true },
+            { targets: [1, 2], searchable: false }
+        ],
+        language: {
+            search: "Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: {
+                previous: "Trước",
+                next: "Sau"
+            },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
+</script>

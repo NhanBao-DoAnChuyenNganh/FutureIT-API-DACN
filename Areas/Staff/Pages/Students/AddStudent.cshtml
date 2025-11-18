@@ -1,0 +1,90 @@
+﻿@page
+@model DoAnCoSo_Web.Areas.Staff.Pages.Students.AddUserModel
+@{
+    ViewData["Title"] = "Thêm người dùng";
+    Layout = null;
+}
+
+<title>@ViewData["Title"]</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<!--<h1>@ViewData["Title"]</h1>-->
+<body style="background: linear-gradient(140deg, rgba(30,255,117,1) 0%, rgba(9,114,121,1) 50%, rgba(0,212,255,1) 100%);">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg rounded-4 border-0">
+                    <div class="card-body p-4">
+                        <h2 class="text-center mb-4 fw-bold">Tạo tài khoản mới</h2>
+                        <hr />
+                        <form method="post" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                            <div class="form-floating mb-3">
+                                <label asp-for="Input.Email">Email</label>
+                                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <label asp-for="Input.HoTen">Họ và tên</label>
+                                <input asp-for="Input.HoTen" class="form-control" placeholder="Họ tên" />
+
+                                <span asp-validation-for="Input.HoTen" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <label asp-for="Input.SDT">Số điện thoại</label>
+                                <input asp-for="Input.SDT" class="form-control" placeholder="Số điện thoại" />
+
+                                <span asp-validation-for="Input.SDT" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <label asp-for="Input.DiaChi">Địa chỉ</label>
+                                <input asp-for="Input.DiaChi" class="form-control" placeholder="Địa chỉ" />
+
+                                <span asp-validation-for="Input.DiaChi" class="text-danger"></span>
+                            </div>
+                
+                            <div class="form-floating mb-3">
+                                <label asp-for="Input.Password">Mật khẩu</label>
+                                <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" />
+
+                                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
+                                <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Xác nhận mật khẩu" />
+
+                                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Khóa học</label>
+                                <select asp-for="Input.MaKhoaHoc" class="form-control" asp-items="ViewBag.DanhSachKhoaHoc">
+                                    <option value="">-- Chọn khóa học --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Input.TrangThaiThanhToan"></label>
+                                <select asp-for="Input.TrangThaiThanhToan" class="form-control">
+                                    <option value="Hoàn tất học phí">Hoàn tất học phí</option>
+                                    <option value="Thanh toán 50%">Thanh toán 50%</option>
+                                </select>
+                                <span asp-validation-for="Input.TrangThaiThanhToan" class="text-danger"></span>
+                            </div>
+                            <button id="registerSubmit" type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                Thêm học viên
+                            </button>
+                            <a asp-area="Staff" asp-controller="StaffHome" asp-action="Index" class="btn btn-outline-danger w-100 py-2 fw-bold shadow-sm mt-2">Huỷ</a>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

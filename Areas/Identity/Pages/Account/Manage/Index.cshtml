@@ -1,0 +1,89 @@
+﻿@page
+@model IndexModel
+@{
+	ViewData["Title"] = "Profile";
+	ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h3 class ="text-center mb-3 fw-bold text-primary">@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<form id="profile-form" method="post" enctype="multipart/form-data">
+	<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+	<div class="form-floating  mb-3">
+		<input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
+		<label asp-for="Username" class="form-label"></label>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Input.HoTen" class="form-control" placeholder="Hãy nhập tên của bạn." />
+		<label asp-for="Input.HoTen" class="form-label"></label>
+		<span asp-validation-for="Input.HoTen" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Input.SDT" class="form-control" placeholder="Hãy nhập số điện thoại của bạn." />
+		<label asp-for="Input.SDT" class="form-label"></label>
+		<span asp-validation-for="Input.SDT" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Input.DiaChi" class="form-control" placeholder="Hãy nhập số địa chỉ của bạn." />
+		<label asp-for="Input.DiaChi" class="form-label"></label>
+		<span asp-validation-for="Input.DiaChi" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input class="form-control bg-light text-secondary"
+			   value="@Model.Input.NgayDK.ToString("dd/MM/yyyy")"
+			   disabled
+			   placeholder="Ngày đăng ký" />
+		<label class="form-label">Ngày đăng ký</label>
+	</div>
+
+
+
+
+	@if (!string.IsNullOrEmpty(Model.Input.AvatarBase64))
+	{
+		<div class="mb-3">
+			<img id="avatarPreview" src="@Model.Input.AvatarBase64" alt="Avatar" width="50" height="50" class="rounded-circle border border-secondary" />
+		</div>
+	}
+	else
+	{
+		<div class="mb-3">
+			<img id="avatarPreview" src="https://via.placeholder.com/100" alt="Avatar" width="50" height="50" class="rounded-circle border border-secondary" />
+		</div>
+	}
+
+	<div class="form-floating mb-3">
+		<input asp-for="Input.Avatar" type="file" class="form-control" accept="image/*" id="avatarInput" />
+		<label asp-for="Input.Avatar" class="form-label"></label>
+	</div>
+
+
+	<div class="mb-4 d-flex justify-content-between">
+		<button id="login-submit" type="submit" class="btn py-2 fw-bold shadow-sm"
+				style="background-color: #339CFF; color: white; border: none; width: 45%;">
+			Lưu
+		</button>
+		<button type="submit" asp-page-handler="Cancel" class="btn btn-outline-danger py-2 fw-bold shadow-sm"
+				style="width: 45%;">
+			Hủy
+		</button>
+	</div>
+
+
+</form>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		document.getElementById("avatarInput").addEventListener("change", function (event) {
+			let file = event.target.files[0];
+			if (file) {
+				let reader = new FileReader();
+				reader.onload = function (e) {
+					document.getElementById("avatarPreview").src = e.target.result;
+				};
+				reader.readAsDataURL(file);
+			}
+		});
+	</script>
+}

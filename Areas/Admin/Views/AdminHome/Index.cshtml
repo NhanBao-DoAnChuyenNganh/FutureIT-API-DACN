@@ -1,0 +1,164 @@
+﻿@model DoAnCoSo_Web.Areas.Admin.ViewModels.UserFilterViewModel
+
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<DoAnCoSo_Web.Models.User> UserManager
+@{
+	ViewData["Title"] = "Quản lý người dùng";
+}
+@{
+	var statusMessage = TempData["StatusMessage"] as string;
+}
+
+<title>@ViewData["Title"]</title>
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+	<div class="alert alert-success">
+		@statusMessage
+	</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+	<div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+<a asp-controller="AdminHome" asp-action="Index2" class="btn btn-secondary mb-3">Quay Lại</a>
+<h2>Quản lý người dùng</h2>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<div class="mb-3">
+	<form method="get">
+		<div class="mb-2">
+			<label class="form-label fw-bold">Lọc theo vai trò</label>
+			<select name="role" class="form-select" style="max-width: 300px;">
+				<option value="">-- Tất cả vai trò --</option>
+				<option value="Admin" selected="@(Model.Role == "Admin" ? "selected" : null)">Admin</option>
+				<option value="Staff" selected="@(Model.Role == "Staff" ? "selected" : null)">Staff</option>
+				<option value="Teacher" selected="@(Model.Role == "Teacher" ? "selected" : null)">Teacher</option>
+				<option value="Student" selected="@(Model.Role == "Student" ? "selected" : null)">Student</option>
+			</select>
+		</div>
+
+		<div class="mb-2">
+			<label class="form-label fw-bold">Lọc theo trạng thái</label>
+			<select name="status" class="form-select" style="max-width: 300px;">
+				<option value="">-- Tất cả trạng thái --</option>
+				<option value="pending" selected="@(Model.Status == "pending" ? "selected" : null)">Chờ duyệt</option>
+				<option value="active" selected="@(Model.Status == "active" ? "selected" : null)">Hoạt động</option>
+				<option value="banned" selected="@(Model.Status == "banned" ? "selected" : null)">Bị cấm</option>
+			</select>
+		</div>
+
+		<div class="mt-3">
+			<button type="submit" class="btn btn-primary me-2">Lọc</button>
+			<a asp-area="Admin" asp-controller="AdminHome" asp-action="Index" class="btn btn-secondary">Hủy lọc</a>
+		</div>
+	</form>
+</div>
+
+
+
+<table id="example" class="table table-striped" style="width:100%">
+	<thead>
+		<tr>
+			<th>Email</th>
+			<th>Họ tên</th>
+			<th>Vai trò</th>
+			<th>Trạng thái</th>
+			<th>Hành động</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var userWithRoles in Model.Users)
+		{
+			var user = userWithRoles.User;
+			var roles = userWithRoles.Roles;
+			var isStudent = roles.Contains("Student");
+
+
+			<tr>
+				<td>@user.Email</td>
+				<td>@user.HoTen</td>
+				<td>@string.Join(", ", roles)</td>
+				<td>
+					@if (user.IsBanned)
+					{
+						<span class="badge bg-danger">Bị cấm</span>
+					}
+					else
+					{
+						@if (user.IsApproved)
+						{
+							<span class="badge bg-success">Hoạt Động</span>
+						}
+						else
+						{
+
+							<span class="badge bg-warning">Chờ duyệt</span>
+						}
+					}
+				</td>
+				<td>
+					@if (!isStudent && !user.IsApproved)
+					{
+						<form asp-action="ApproveUser" method="post" style="display:inline">
+							<input type="hidden" name="userId" value="@user.Id" />
+							<button type="submit" class="btn btn-sm btn-outline-success">Duyệt</button>
+						</form>
+
+						<form asp-action="RejectUser" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn từ chối tài khoản này?');">
+							<input type="hidden" name="userId" value="@user.Id" />
+							<button type="submit" class="btn btn-sm btn-outline-danger">Từ chối</button>
+						</form>
+					}
+					else
+					{
+						@if (user.IsMainAdmin)
+						{
+							<span class="text-muted fst-italic">Không thể thao tác vì đây là admin gốc</span>
+						}
+						else
+						{
+							@if (!user.IsBanned)
+							{
+								<form asp-action="BanUser" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc chắn muốn cấm người dùng này không?');">
+									<input type="hidden" name="userId" value="@user.Id" />
+									<button type="submit" class="btn btn-sm btn-outline-danger">Cấm</button>
+								</form>
+							}
+							else
+							{
+								<form asp-action="UnBanUser" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn gỡ cấm người dùng này không?');">
+									<input type="hidden" name="userId" value="@user.Id" />
+									<button type="submit" class="btn btn-sm btn-outline-success">Gỡ cấm</button>
+								</form>
+							}
+						}
+					}
+
+
+				</td>
+			</tr>
+		}
+
+	</tbody>
+</table>
+<a href="@Url.Page("/Users/AddUser", new { area = "Admin" })" class="btn btn-primary mb-3">Thêm người dùng</a>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+	new DataTable('#example',{
+		 columnDefs: [
+		{ targets: 0, searchable: true },  // Chỉ cột Email được tìm
+		{ targets: [1, 2, 3, 4], searchable: false }  // Các cột khác không cho tìm
+	  ]
+	});
+</script>

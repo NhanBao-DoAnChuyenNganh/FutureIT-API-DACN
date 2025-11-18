@@ -1,0 +1,106 @@
+﻿@model DoAnCoSo_Web.Areas.Staff.ViewModels.TaoLopViewModel
+
+<h2>Tạo Lớp Mới</h2>
+<form asp-area="Staff" asp-controller="PhieuDangKyKhoaHoc" asp-action="TaoLop" method="post">
+	<input type="hidden" name="maKhoaHoc" value="@Model.MaKhoaHoc" />
+	<div class="form-group">
+		<label for="TenLopHoc">Tên lớp học</label>
+		<input type="text" id="TenLopHoc" class="form-control" asp-for="TenLopHoc" required />
+		<span asp-validation-for="TenLopHoc" class="text-danger"></span>
+	</div>
+
+	<div class="form-group">
+		<label for="TenKhoaHoc">Tên khóa học</label>
+		<input type="text" id="TenKhoaHoc" class="form-control" value="@Model.TenKhoaHoc" asp-for="TenKhoaHoc" readonly />
+	</div>
+
+	<div class="form-group">
+		<label for="NgayKhaiGiang">Ngày khai giảng</label>
+		<input type="date" id="NgayKhaiGiang" class="form-control" asp-for="NgayKhaiGiang" />
+		<span asp-validation-for="NgayKhaiGiang" class="text-danger"></span>
+	</div>
+
+	<div class="form-group">
+		<label for="NgayKetThuc">Ngày kết thúc</label>
+		<input type="date" id="NgayKetThuc" class="form-control" asp-for="NgayKetThuc" readonly />
+		<span asp-validation-for="NgayKetThuc" class="text-danger"></span>
+	</div>
+
+	<div class="form-group row">
+		<label asp-for="SelectedPhongHocId" class="col-sm-2 col-form-label">Phòng học</label>
+		<div class="col-sm-10">
+			<select asp-for="SelectedPhongHocId"
+					asp-items="Model.DanhSachPhongHoc"
+					class="form-control">
+				<option value="">-- Chọn phòng học --</option>
+			</select>
+			<span asp-validation-for="SelectedPhongHocId" class="text-danger"></span>
+		</div>	
+	</div>
+	<div id="giaoVienDropdownContainer">
+		@Html.Partial("_GiaoVienDropdown", Model)
+
+	</div>
+
+
+
+
+
+
+	<button type="submit" class="btn btn-primary">Tạo lớp</button>
+	@if (TempData["Message"] != null)
+	{
+		<div class="alert alert-success">@TempData["Message"]</div>
+	}
+
+
+
+</form>
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+
+	<script>
+		$(document).ready(function () {
+					$('#NgayKhaiGiang').on('change', function () {
+			var ngayKhaiGiang = $(this).val();
+			var maKhoaHoc = '@Model.MaKhoaHoc';
+
+			if (ngayKhaiGiang) {
+				$.ajax({
+					url: '/Staff/PhieuDangKyKhoaHoc/TinhNgayKetThuc',
+					type: 'GET',
+					data: {
+						maKhoaHoc: maKhoaHoc,
+						ngayKhaiGiang: ngayKhaiGiang
+					},
+					success: function (data) {
+						$('#NgayKetThuc').val(data.ngayKetThuc);
+
+						$.ajax({
+							url: '/Staff/PhieuDangKyKhoaHoc/GiaoVienPartial',
+							type: 'GET',
+							data: {
+								maKhoaHoc: maKhoaHoc,
+								ngayKhaiGiang: ngayKhaiGiang,
+								ngayKetThuc: data.ngayKetThuc
+							},
+							success: function (partialViewHtml) {
+								$('#giaoVienDropdownContainer').html(partialViewHtml);
+							},
+							error: function () {
+								alert('Lỗi tải danh sách giáo viên.');
+							}
+						});
+					},
+					error: function () {
+						alert('Lỗi tính ngày kết thúc.');
+					}
+				});
+			}
+		});
+
+		});
+	</script>
+}

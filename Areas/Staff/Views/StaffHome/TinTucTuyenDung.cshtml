@@ -1,0 +1,99 @@
+﻿@model IEnumerable<DoAnCoSo_Web.Models.TinTucTuyenDung>
+
+@{
+	ViewData["Title"] = "Danh sách Tin tức tuyển dụng";
+}
+@if (TempData["MessageTinTuc"] != null)
+{
+	<div class="alert alert-info">
+		@TempData["MessageTinTuc"]
+	</div>
+}
+<a asp-action="Index" asp-controller="StaffHome" class="btn btn-secondary mb-3">Quay lại</a>
+<h2>@ViewData["Title"]</h2>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<table id="example" class="table table-striped" style="width:100%">
+	<thead class="table-dark">
+		<tr>
+			<th>Tiêu đề</th>
+			<th>Ngày đăng</th>
+			<th>Ngày kết thúc</th>
+			<th>Thao tác</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>@item.TieuDeTinTuc</td>
+				<td>@item.NgayDang.ToString("dd/MM/yyyy")</td>
+				<td>@item.NgayKetThuc.ToString("dd/MM/yyyy")</td>
+				<td>
+					<a asp-area="Staff" asp-controller="StaffHome" asp-action="Edit" asp-route-id="@item.MaTinTuc" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm">
+						<i class="fa-solid fa-pen-to-square"></i>Sửa</a>
+					<button class="btn btn-danger fw-bold rounded-pill shadow-sm delete-btn" onclick="xoa(@item.MaTinTuc,this)">
+						<i class="fa-solid fa-trash"></i> Xóa
+					</button>
+					<a asp-area="Staff" asp-controller="StaffHome" asp-action="Detail" asp-route-id="@item.MaTinTuc" class="btn btn-outline-info fw-bold rounded-pill shadow-sm">
+						<i class="fa-solid fa-circle-info"></i> Xem chi tiết
+					</a>
+
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+<a href="@Url.Action("Create")" class="btn btn-primary">+ Thêm tin tuyển dụng</a>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+	new DataTable('#example',{
+		 columnDefs: [
+		{ targets: 0, searchable: true },  // Chỉ cột Email được tìm
+		{ targets: [1, 2, 3], searchable: false }  // Các cột khác không cho tìm
+	  ],
+	  order: [[1, 'desc']],
+		language: {
+			search: "Tìm kiếm:",
+			lengthMenu: "Hiển thị _MENU_ dòng",
+			info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+			paginate: {
+				previous: "Trước",
+				next: "Sau"
+			},
+			zeroRecords: "Không tìm thấy kết quả phù hợp"
+		}
+	});
+	function xoa(id, element) {
+		if (!confirm("Bạn có chắc chắn muốn xóa tin tuyển dụng này không?")) {
+			return;
+		}
+
+		$.ajax({
+			url: `/Staff/StaffHome/Delete`,
+			type: "POST",
+			data: { id: id },
+			success: function (response) {
+				if (response.success) {
+					// Ẩn dòng chứa tin tức (row trong table)
+					$(element).closest("tr").fadeOut(500, function () {
+						$(this).remove();
+					});
+				} else {
+					alert("Không thể xóa tin tức này!");
+				}
+			},
+			error: function () {
+				alert("Lỗi khi xóa tin tức!");
+			}
+		});
+	}
+</script>
+

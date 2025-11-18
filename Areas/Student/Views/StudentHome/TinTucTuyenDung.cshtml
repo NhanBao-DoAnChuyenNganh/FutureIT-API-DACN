@@ -1,0 +1,129 @@
+﻿
+<!doctype html>
+<html class="no-js" lang="zxx">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title> Education | Template </title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico">
+
+
+	<link rel="stylesheet" href="~/css/bootstrap.min.css">
+	<link rel="stylesheet" href="~/css/owl.carousel.min.css">
+	<link rel="stylesheet" href="~/css/slicknav.css">
+	<link rel="stylesheet" href="~/css/animate.min.css">
+	<link rel="stylesheet" href="~/css/magnific-popup.css">
+	<link rel="stylesheet" href="~/css/fontawesome-all.min.css">
+	<link rel="stylesheet" href="~/css/themify-icons.css">
+	<link rel="stylesheet" href="~/css/themify-icons.css">
+	<link rel="stylesheet" href="~/css/slick.css">
+	<link rel="stylesheet" href="~/css/nice-select.css">
+	<link rel="stylesheet" href="~/css/style.css">
+	<link rel="stylesheet" href="~/css/ responsive.css">
+
+</head>
+<body>
+	<main>
+		<!--? Hero Start -->
+		<div class="slider-area ">
+			<div class="slider-height2 d-flex align-items-center">
+				<div class="container">
+					<div class="row">
+						<div class="col-xl-12">
+							<div class="hero-cap hero-cap2 text-center">
+								<h2>Tin tức tuyển dụng</h2>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--? Hero End -->
+		<!--================Blog Area =================-->
+		@model List<DoAnCoSo_Web.Models.TinTucTuyenDung>
+
+		<section class="blog_area section-padding">
+			@foreach (var tin in Model)
+			{
+
+				@if (tin.HinhTinTuc != null)
+				{
+					var base64 = Convert.ToBase64String(tin.HinhTinTuc);
+					var imgSrc = $"data:image/png;base64,{base64}";
+
+					<div class="container">
+						<div class="row justify-content-center">
+							<div class="col-lg-8 mb-5 mb-lg-0">
+								<div class="blog_left_sidebar">
+									<article class="blog_item">
+										<a asp-action="ChiTietTinTucTuyenDung" asp-route-id="@tin.MaTinTuc" style="text-decoration: none; color: inherit;">
+										<div class="blog_item_img">
+											<img class="card-img rounded-0" src="@imgSrc" alt="Hình tin tức">
+											<a asp-action="ChiTietTinTucTuyenDung" asp-route-id="@tin.MaTinTuc" class="blog_item_date">
+												<h3>@tin.NgayDang.ToString("dd")</h3>
+												<p>@tin.NgayDang.ToString("MM")</p>
+											</a>
+										</div>
+										<div class="blog_details">
+											<a class="d-inline-block">
+												<h2 class="blog-head" style="color: #2d2d2d;">Ngày ngừng tuyển dụng :@tin.NgayKetThuc.ToString("dd/MM/yyyy")</h2>
+											</a>
+											<h3>Tiêu đề: @tin.TieuDeTinTuc</h3>
+											<p>
+												@Html.Raw(tin.NoiDungTinTuc)
+											</p>
+										</div>
+										</a>
+									</article>
+									<!-- Pagination có thể giữ lại hoặc ẩn đi nếu không cần -->
+								</div>
+							</div>
+							@* <div class="col-lg-4"> *@
+							@*     <!-- Sidebar giữ nguyên như cũ --> *@
+							@*     <!-- ... (phần sidebar bạn đã có ở trên) --> *@
+							@* </div> *@
+						</div>
+					</div>
+
+				}
+			}
+		</section>
+		<!--================Blog Area =================-->
+		<!-- JS here -->
+
+		<script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
+		<!-- Jquery, Popper, Bootstrap -->
+		<script src="~/js/vendor/jquery-1.12.4.min.js"></script>
+		<script src="~/js/popper.min.js"></script>
+		<script src="~/js/bootstrap.min.js"></script>
+		<!-- Jquery Mobile Menu -->
+		<script src="~/js/jquery.slicknav.min.js"></script>
+
+		<!-- Jquery Slick , Owl-Carousel Plugins -->
+		<script src="~/js/owl.carousel.min.js"></script>
+		<script src="~/js/slick.min.js"></script>
+		<!-- One Page, Animated-HeadLin -->
+		<script src="~/js/wow.min.js"></script>
+		<script src="~/js/animated.headline.js"></script>
+
+		<!-- Nice-select, sticky -->
+		<script src="~/js/jquery.nice-select.min.js"></script>
+		<script src="~/js/jquery.sticky.js"></script>
+		<script src="~/js/jquery.magnific-popup.js"></script>
+
+		<!-- contact js -->
+		<script src="~/js/contact.js"></script>
+		<script src="~/js/jquery.form.js"></script>
+		<script src="~/js/jquery.validate.min.js"></script>
+		<script src="~/js/mail-script.js"></script>
+		<script src="~/js/jquery.ajaxchimp.min.js"></script>
+
+		<!-- Jquery Plugins, main Jquery -->
+		<script src="~/js/plugins.js"></script>
+		<script src="~/js/main.js"></script>
+
+</body>
+</html>

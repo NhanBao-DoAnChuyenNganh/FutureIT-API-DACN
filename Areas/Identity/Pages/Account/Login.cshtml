@@ -1,0 +1,100 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@ViewData["Title"]</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body style="background: linear-gradient(140deg, rgba(179, 217, 255, 1) 0%, rgba(153, 204, 255, 1) 50%, rgba(128, 191, 255, 1) 100%); min-height: 100vh; display: flex; align-items: center;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-5">
+                <div class="card shadow-lg rounded-4 border-0">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-3 fw-bold text-primary">Đăng nhập</h2>
+
+                        <div class="d-flex justify-content-center mb-4">
+                            <a asp-area="Identity" asp-action="LoginWithGoogle" asp-controller="GoogleLogin"
+                               class="btn btn-outline-dark d-flex align-items-center p-2 shadow-sm">
+                                <img src="~/image/Google.png" alt="Google" style="width: 40px; height: auto;">
+                                <span>Đăng nhập với Google</span>
+                            </a>
+                        </div>
+                        <div class="text-center">Hoặc</div>
+                        <hr class="mb-4" />
+                        <form id="account" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Input.Email" class="form-label fw-medium">Email</label>
+                                <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3 position-relative">
+                                <label asp-for="Input.Password" class="form-label fw-medium">Mật khẩu</label>
+                                <div class="input-group">
+                                    <input asp-for="Input.Password" class="form-control form-control-lg" autocomplete="current-password" aria-required="true" placeholder="Mật khẩu" id="loginPassword" />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('loginPassword', this)">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" asp-for="Input.RememberMe" id="rememberMeCheck" />
+                                <label class="form-check-label" for="rememberMeCheck">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
+                            </div>
+
+                            <div class="mb-4">
+                                <button id="login-submit" type="submit" class="btn w-100 py-2 fw-bold shadow-sm"
+                                        style="background-color: #339CFF; color: white; border: none;">
+                                    Đăng nhập
+                                </button>
+                            </div>
+
+                            <div class="text-center">
+                                <p><a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none text-primary">Quên mật khẩu?</a></p>
+                                <p><a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none text-primary">Tạo tài khoản mới</a></p>
+                                <p><a id="resend-confirmation" asp-page="./ResendEmailConfirmation" class="text-decoration-none text-primary">Gửi lại xác nhận email</a></p>
+                                
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        }
+    </script>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

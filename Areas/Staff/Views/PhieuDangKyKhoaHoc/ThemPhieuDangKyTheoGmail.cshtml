@@ -1,0 +1,57 @@
+﻿@model DoAnCoSo_Web.Models.PhieuDangKyKhoaHoc
+@{
+    ViewData["Title"] = "Thêm Phiếu Đăng Ký";
+}
+
+<h2>Thêm Phiếu Đăng Ký Theo Gmail</h2>
+
+<form asp-action="ThemPhieuDangKyTheoGmail" method="post">
+    <div class="form-group">
+        <label for="Gmail">Gmail người học:</label>
+        <input type="email" name="Gmail" class="form-control" required />
+    </div>
+
+    <div class="form-group row">
+        <label for="KhoaHocId" class="col-sm-2 col-form-label">Khóa học:</label>
+        <div class="col-sm-10">
+            <select name="KhoaHocId" class="form-control" required>
+                <option value="">-- Chọn khóa học --</option>
+                @foreach (var item in ViewBag.DanhSachKhoaHoc as List<DoAnCoSo_Web.Models.KhoaHoc>)
+                {
+                    <option value="@item.MaKhoaHoc">
+                        @item.TenKhoaHoc - @item.NgayHoc
+                    </option>
+                }
+            </select>
+
+        </div>
+    </div>
+
+    <div class="form-group row mt-3">
+        <label for="TrangThaiThanhToan" class="col-sm-2 col-form-label">Trạng thái thanh toán:</label>
+        <div class="col-sm-10">
+            <select name="TrangThaiThanhToan" class="form-control" required>
+                <option value="Hoàn tất học phí">Hoàn tất học phí</option>
+                <option value="Thanh toán 50%">Thanh toán 50%</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Thêm Phiếu</button>
+</form>
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="text-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}

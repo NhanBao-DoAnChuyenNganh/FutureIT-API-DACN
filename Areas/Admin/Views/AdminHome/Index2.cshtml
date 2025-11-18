@@ -1,0 +1,387 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@{
+    ViewData["Title"] = "Index2";
+}
+@using Newtonsoft.Json
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <style>
+     .nav-item:hover{
+        background-color: lightblue !important;
+        transform: scale(1.1);
+        transition: ease-in-out 0.3s;
+    }
+
+    .info-card {
+        border-radius: 15px;
+        color: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+        position: relative;
+        z-index: 1;
+        width: 280px;
+        height: 155px;
+    }
+
+    .icon_background {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 70px;
+        opacity: 0.3;
+        z-index: 0;
+    }
+
+    .info-card:hover {
+        transform: scale(1.1);
+    }
+
+    .card-user {
+        background-color: lightgrey;
+    }
+
+    .card-teacher {
+        background-color: aquamarine;
+    }
+
+    .card-staff {
+        background-color: mediumpurple;
+    }
+
+    .card-student {
+        background-color: bisque;
+    }
+
+    .card-vps-waiting {
+        background-color: hotpink;
+    }
+
+    .card-vps-expired {
+        background-color: darkgoldenrod;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row mt-3">
+        <div class="col-2">
+            <div class="mt-2 mb-3 fs-5 fw-bold text-uppercase">Hoạt động</div>
+            <ul class="nav flex-column p-0 shadow-sm bg-white border-bottom">
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="Index2">
+                        <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="Index">
+                        <i class="fas fa-tachometer-alt mr-2"></i> Quản lý người dùng
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="QuanLyStaff">
+                        <i class="fas fa-user-cog mr-2"></i> Quản lý Staff
+                    </a>
+                </li> 
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="QuanLyStudent">
+                        <i class="fas fa-user-graduate mr-2"></i> Quản lý Student
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="QuanLyTeacher">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i> Quản lý Teacher
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="QuanLyNo">
+                        <i class="fas fa-wallet mr-2"></i> Quản lý nợ
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-action="DoanhThu">
+                        <i class="fa-solid fa-receipt mr-2"></i> Xem hoạt động hóa đơn
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-controller="ChuyenNganh" asp-action="Index">
+                        <i class="fa-solid fa-layer-group mr-2"></i>  Quản lý chuyên ngành
+                    </a>
+                </li>
+                <li class="nav-item mb-2 rounded-2">
+                    <a class="nav-link d-flex align-items-center py-3 px-3 border-bottom text-dark" asp-area="Staff" asp-controller="StaffHome" asp-action="Index">
+                        <i class="fa-solid fa-user-tie mr-2"></i> Quản lý học vụ
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-10">
+            <div class="row">
+                <div class="fs-1 text-dark mt-3 fw-medium border-bottom border-1 pb-1 text-center">ADMIN DASHBOARD</div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-3">
+                    <a asp-action="DoanhThu" style="text-decoration: none; color: inherit;">
+                        <div class="info-card card-user">
+                            <div class="icon_background"><i class="fa-solid fa-dollar-sign fa-2x"></i></div>
+                            <div class="fs-4 text-dark">
+                                Doanh thu tháng <span class="fw-bold">@DateTime.Now.Month/@DateTime.Now.Year</span>
+                            </div>
+                            <div class="mt-2 text-danger fw-bold fs-3">@ViewBag.DoanhThuThang VND</div>
+                        </div>
+                    </a>
+                    
+                </div>
+                <div class="col-3">
+                    <a asp-action="QuanLyNo" style="text-decoration: none; color: inherit;">
+                        <div class="info-card card-teacher">
+                            <div class="icon_background">
+                                <i class="fas fa-hourglass-half fa-2x"></i>
+                            </div>
+                            <div class="fs-4 text-dark">
+                                Tổng tiền chờ thanh toán
+                            </div>
+                            <div class="mt-2 text-danger fw-bold fs-3">@ViewBag.TienConThieu VND</div>
+                        </div>
+                    </a>
+                    
+                </div>
+                <div class="col-3">
+                    <a asp-action="DoanhThu" style="text-decoration: none; color: inherit;">
+                        <div class="info-card card-staff">
+                            <div class="icon_background">
+                                <i class="fas fa-coins fa-2x"></i>
+                            </div>
+                            <div class="fs-4 text-dark">
+                                Khóa học bán được tháng <span class="fw-bold">@DateTime.Now.Month/@DateTime.Now.Year</span>
+                            </div>
+                            <div class="mt-2 text-danger fw-bold fs-3">@ViewBag.SoLuongKHBanThangHienTai</div>
+                        </div>
+                    </a>
+                    
+                </div>
+                <div class="col-3">
+                    <a asp-action="QuanLyStudent" style="text-decoration: none; color: inherit;">
+                        <div class="info-card card-vps-expired">
+                            <div class="icon_background">
+                                <i class="fa-solid fa-graduation-cap fa-2x"></i>
+                            </div>
+                            <div class="mt-2 text-danger fw-bold fs-3">@ViewBag.SLStudent</div>
+                            <div class="fs-4 text-dark">
+                                Học viên
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-3">
+                    <a asp-action="QuanLyTeacher" style="text-decoration: none; color: inherit;">
+                        <div class="info-card card-student">
+                            <div class="icon_background">
+                                <i class="fa-solid fa-chalkboard-user fa-2x"></i>
+                            </div>
+                            <div class="mt-2 text-danger fw-bold fs-3">@ViewBag.SLTeacher</div>
+                            <div class="fs-4 text-dark">
+                                Giảng viên
+                            </div>
+                        </div>
+                    </a>
+                    
+                </div>
+                <div class="col-3">
+                    <a asp-action="QuanLyStaff" style="text-decoration: none; color: inherit;">
+                        <div class="info-card card-vps-waiting">
+                            <div class="icon_background">
+                                <i class="fas fa-server fa-2x"></i>
+                            </div>
+                            <div class="mt-2 text-danger fw-bold fs-3">@ViewBag.SLStaff</div>
+                            <div class="fs-4 text-dark">
+                                Nhân viên
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+            </div>
+    </div>
+    </div>
+
+    <div class="row mt-2 mb-5">
+        <div class="fs-1 text-info fw-bold border-bottom border-1 pb-1 text-center">THỐNG KÊ TỔNG QUAN</div>
+        <form method="get" id="filterForm">
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <label for="nam" class="form-label fw-bold fs-5">Thống kê theo năm</label>
+                    <select class="form-select" name="nam" id="nam" style="width: 100px;">
+                        @foreach (int y in ViewBag.allYears)
+                        {
+                            <option value="@y" selected="@(ViewBag.NamDangChon == y ? "selected" : null)">@y</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-4">
+                    <label for="thang" class="form-label fw-bold fs-5">Thống kê theo tháng</label>
+                    <select class="form-select" name="thang" id="thang" style="width: 100px;">
+                        @foreach (int y in ViewBag.allMonths)
+                        {
+                            <option value="@y" selected="@(ViewBag.ThangDangChon == y ? "selected" : null)">@y</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-4 justify-content-center align-content-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-chart-simple me-2"></i>Thống kê
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+        <div class="row">
+            <div class="col-4">
+                <h5 class="fw-bold text-primary">Top 5 khóa học được đăng ký nhiều nhất</h5>
+            <table class="table table-striped table-hover table-bordered table-primary mt-4 shadow-sm">
+                <thead class="table-dark">
+                    <tr class="text-center">
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 65%;">Tên khóa học</th>
+                        <th style="width: 30%;">Số lượt đăng ký</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Top5KhoaHoc != null && ViewBag.Top5KhoaHoc.Count > 0)
+                    {
+                        int stt = 1;
+                        foreach (var item in ViewBag.Top5KhoaHoc)
+                        {
+                            <tr>
+                                <td class="text-center align-middle">@stt</td>
+                                <td class="align-middle">@item.TenKhoaHoc</td>
+                                <td class="text-center align-middle fw-bold text-primary">@item.SoLuongDangKy</td>
+                            </tr>
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center fst-italic text-muted py-3">Không có dữ liệu</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+
+            
+            </div>
+            <div class="col-8">
+                <canvas id="myChart" class="w-100 h-100 p-1"></canvas>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row mt-3 p-1">
+                <div class="fs-1 text-info fw-bold border-bottom border-1 pb-1 text-center">THỐNG KÊ DOANH THU</div>
+                <canvas id="DoanhThuChart" class="w-100 h-100 p-5"></canvas>
+            </div>
+        </div>
+        
+</div>
+
+<script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        datasets: [
+            {
+              label: 'Số lượt đăng ký khóa học',
+              data: @JsonConvert.SerializeObject(ViewBag.SLDKTheoThang),
+              borderWidth: 3,
+              order: 2,
+              type: 'bar'
+            },
+            {
+              label: 'Số lượt đăng ký nợ khóa học',
+              data: @JsonConvert.SerializeObject(ViewBag.SLNoTheoThang),
+              borderWidth: 5,
+              type: 'line',
+              order: 0,
+              pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+              pointRadius: 5,
+              pointHoverRadius: 8,
+              tension: 0.3
+            }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'BIỂU ĐỒ THỐNG KÊ SỐ LƯỢNG PHIẾU ĐĂNG KÝ KHÓA HỌC VÀ NỢ HỌC PHÍ',
+            }
+        }
+      }
+    });
+
+    const ctx2 = document.getElementById('DoanhThuChart');
+
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+        datasets: [
+            {
+                label: 'Tổng tiền (VNĐ)',
+                data: @JsonConvert.SerializeObject(ViewBag.TongTienTheoThang),
+                borderWidth: 2,
+                order: 1,
+                backgroundColor: 'green',
+                pointRadius: 5,
+                pointHoverRadius: 8,
+            },
+            {
+                label: 'Tiền chờ thanh toán (VNĐ)',
+                data: @JsonConvert.SerializeObject(ViewBag.TongNoTheoThang),
+                borderWidth: 2,
+                order: 0,
+                backgroundColor: 'orange',
+                pointRadius: 5,
+                pointHoverRadius: 8,
+            }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'BIỂU ĐỒ THỐNG KÊ DOANH THU VÀ HỌC PHÍ',
+            }
+        }
+      }
+    });
+</script>
+

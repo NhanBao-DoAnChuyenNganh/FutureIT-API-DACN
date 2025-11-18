@@ -1,0 +1,265 @@
+﻿﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>IT FUTURE.COM</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/favicon.ico">
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/DoAnCoSo_Web.styles.css" asp-append-version="true" />
+    <!-- Link CSS từ Flaticon CDN -->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="~/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/slicknav.css">
+    <link rel="stylesheet" href="~/css/flaticon.css">
+    <link rel="stylesheet" href="~/css/gijgo.css">
+    <link rel="stylesheet" href="~/css/animate.min.css">
+    <link rel="stylesheet" href="~/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="~/css/themify-icons.css">
+    <link rel="stylesheet" href="~/css/slick.css">
+    <link rel="stylesheet" href="~/css/nice-select.css">
+    <link rel="stylesheet" href="~/css/style.css">
+</head>
+<body>
+    <header>
+        <!-- Header Start -->
+        <div class="header-area">
+            <div class="main-header">
+                <div class="header-top d-none d-lg-block">
+                    <!-- Left Social -->
+                    <div class="header-left-social">
+                        <ul class="header-social">
+                            <li>
+                                <a href="https://x.com/"><i class="fab fa-twitter"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://www.facebook.com/">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://www.google.com/"><i class="fab fa-google-plus-g"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="container">
+                        <div class="col-xl-12">
+                            <div class="row d-flex justify-content-center align-items-center">
+                                <div class="col-6 d-flex">
+                                    <div class="header-info-left">
+                                        <ul>
+                                            <li>futureit@gmail.com</li>
+                                            <li>099 8899 0888</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-6 d-flex">
+                                    <div class="header-info-right">
+                                        <partial name="_LoginPartial" />
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-bottom header-sticky">
+                    <!-- Logo -->
+                    <div class="logo d-none d-lg-block">
+                        <a href="index.html">
+                            <img src="~/img/logo/logo.png" alt="" />
+                        </a>
+                    </div>
+                    <div class="container">
+                        <div class="menu-wrapper">
+                            <!-- Logo -->
+                            <div class="logo logo2 d-block d-lg-none">
+                                <a href="index.html">
+                                    <img src="~/img/logo/logo.png" alt="" />
+                                </a>
+                            </div>
+                            <!-- Main-menu -->
+                            <div class="main-menu d-none d-lg-block">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a asp-controller="StudentHome" asp-action="Index">Trang Chủ</a></li>
+                                        <li><a asp-controller="StudentHome" asp-action="About">Về Chúng Tôi</a></li>
+                                        <li><a asp-controller="StudentHome" asp-action="KhoaHoc">Khóa Học</a></li>
+                                        <li><a asp-controller="StudentHome" asp-action="Teacher">Giáo Viên</a></li>
+                                        <li><a asp-controller="StudentHome" asp-action="TinTucTuyenDung">Tuyển Dụng</a></li>
+                                        <li><a asp-controller="StudentHome" asp-action="KhoaHocDaDangKy">Học Tập</a></li>
+
+                                    </ul>
+                                </nav>
+                            </div>
+                            <!-- Header-btn -->
+                            <div class="header-search d-none d-lg-block">
+                                <form asp-action="TimKiemKhoaHoc" class="form-box f-right">
+                                    <input type="text"
+                                           name="Search"
+                                           placeholder="Tìm khóa học..." required 
+                                           oninvalid="this.setCustomValidity('Vui lòng không để trống trường này')"
+                                           oninput="setCustomValidity('')" />
+                                    <button type="submit" class="search-icon"
+                                            style="background: none; border: none; padding: 0; cursor: pointer;">
+                                            <i class="fas fa-search special-tag"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Mobile Menu -->
+                        <div class="col-12">
+                            <div class="mobile_menu d-block d-lg-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Header End -->
+
+
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <style>
+        .social-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+            .social-icon:hover {
+                transform: scale(1.25);
+            }
+
+                .social-icon:hover i {
+                    color: white !important;
+                }
+    </style>
+    <footer class="text-white pt-5 pb-4 " style="background-color: darkblue">
+
+        <div class="container">
+            <div class="row text-center">
+
+                
+                <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+                <df-messenger intent="WELCOME"
+                              chat-title="Tư_vấn_viên_AI_FutureIT"
+                              agent-id="ebdfc8fa-972d-4b2d-b9fe-5c94fcb6bc43"
+                              language-code="vi"></df-messenger>
+
+                <h2 class="text-uppercase text-light fw-bold mb-4">KẾT NỐI VỚI CHÚNG TÔI</h2>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="#" class="btn btn-outline-light rounded-circle bg-light d-flex align-items-center justify-content-center social-icon">
+                        <i class="fab fa-facebook-f text-dark"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light rounded-circle bg-light d-flex align-items-center justify-content-center social-icon">
+                        <i class="fab fa-twitter text-dark"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light rounded-circle bg-light d-flex align-items-center justify-content-center social-icon">
+                        <i class="fab fa-google text-dark"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light rounded-circle bg-light d-flex align-items-center justify-content-center social-icon">
+                        <i class="fab fa-instagram text-dark"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-light rounded-circle bg-light d-flex align-items-center justify-content-center social-icon">
+                        <i class="fab fa-youtube text-dark"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Links -->
+        <div class="row mt-4 text-start ps-5">
+            <div class="col-4 mb-3">
+                <h3 class="text-uppercase fw-bold text-white">Thông tin</h3>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light text-decoration-none">Về chúng tôi</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Học thử miễn phí</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Giải pháp học tập</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Cơ hội nghề nghiệp</a></li>
+                </ul>
+            </div>
+
+            <div class="col-4 mb-3">
+                <h3 class="text-uppercase fw-bold text-white">Hướng dẫn</h3>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light text-decoration-none">Chính sách tuyển sinh</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Đăng ký học</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Thông tin Visa</a></li>
+                </ul>
+            </div>
+
+            <div class="col-4 mb-3">
+                <h3 class="text-uppercase fw-bold text-white ">Hỗ trợ</h3>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light text-decoration-none">Liên hệ</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Câu hỏi thường gặp</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Phản hồi</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+
+
+
+
+    <!-- JS here -->
+    <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
+    <!-- Jquery -->
+    <script src="~/js/vendor/jquery-1.12.4.min.js"></script>
+    <!-- Popper, Bootstrap -->
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+
+    <!-- Các plugin khác -->
+    <script src="~/js/jquery.slicknav.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/slick.min.js"></script>
+    <script src="~/js/wow.min.js"></script>
+    <script src="~/js/animated.headline.js"></script>
+    <script src="~/js/jquery.magnific-popup.js"></script>
+    <script src="~/js/gijgo.min.js"></script>
+    <script src="~/js/jquery.nice-select.min.js"></script>
+    <script src="~/js/jquery.sticky.js"></script>
+    <script src="~/js/jquery.counterup.min.js"></script>
+    <script src="~/js/waypoints.min.js"></script>
+
+    <!-- Contact form -->
+    <script src="~/js/contact.js"></script>
+    <script src="~/js/jquery.form.js"></script>
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/mail-script.js"></script>
+    <script src="~/js/jquery.ajaxchimp.min.js"></script>
+
+    <!-- Main JS -->
+    <script src="~/js/plugins.js"></script>
+    <script src="~/js/main.js"></script>
+
+    <!-- File site.js có thể bỏ nếu không cần thiết -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

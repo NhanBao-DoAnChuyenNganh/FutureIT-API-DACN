@@ -1,0 +1,27 @@
+﻿@model DoAnCoSo_Web.Models.PhongHoc
+@{
+    ViewData["Title"] = "Chỉnh sửa phòng học";
+}
+
+<h2>Chỉnh sửa phòng học</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="MaPhongHoc" />
+
+    <div class="mb-3">
+        <label asp-for="TenPhongHoc" class="form-label">Tên phòng học</label>
+        <input asp-for="TenPhongHoc" class="form-control" />
+        <span asp-validation-for="TenPhongHoc" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SucChua" class="form-label">Sức chứa</label>
+        <input asp-for="SucChua" class="form-control" type="number" min="1" />
+        <span asp-validation-for="SucChua" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

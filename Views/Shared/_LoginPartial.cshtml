@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using DoAnCoSo_Web.Models
+
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    var identityUser = await UserManager.GetUserAsync(User);
+    var user = identityUser as User;
+    var avatarBase64 = user?.Avatar != null
+        ? $"data:image/png;base64,{Convert.ToBase64String(user.Avatar)}"
+        : "/image/avatar.png";
+}
+
+<ul class="navbar-nav ms-auto align-items-center">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="@avatarBase64" alt="Avatar" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                <span>@User.Identity?.Name</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li>
+                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">Manage Account</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "StudentHome", new { area = "Student" })">
+                        <button type="submit" class="dropdown-item">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item d-flex align-items-center">
+            <a class="ti-user" asp-area="Identity" asp-page="/Account/Register">
+                <img src="~/image/add-user.png" width="20" height="20" class="me-1" alt="Register">
+                Đăng ký
+            </a>
+            <a class="ti-lock" asp-area="Identity" asp-page="/Account/Login">
+                Đăng nhập
+                <img src="~/image/log-out.png" width="20" height="20" class="me-1" alt="Login">
+            </a>
+        </li>
+    }
+</ul>

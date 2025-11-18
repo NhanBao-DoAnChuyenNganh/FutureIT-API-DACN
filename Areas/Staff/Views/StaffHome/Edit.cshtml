@@ -1,0 +1,229 @@
+﻿@model DoAnCoSo_Web.Models.TinTucTuyenDung
+
+@{
+	ViewData["Title"] = "Chỉnh sửa Tin Tuyển Dụng";
+}
+<style>
+	.editor-container {
+		max-height: 200px; /* Giới hạn chiều cao container */
+		overflow-y: auto; /* Thêm thanh cuộn nếu nội dung quá dài */
+	}
+
+	.ck-content a {
+		color: #007BFF !important; /* Màu xanh */
+		text-decoration: underline;
+	}
+
+</style>
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" enctype="multipart/form-data" method="post">
+	<input type="hidden" asp-for="MaTinTuc" />
+
+	<div class="mb-3">
+		<label asp-for="TieuDeTinTuc" class="form-label">Tiêu đề tin tức</label>
+		<input asp-for="TieuDeTinTuc" class="form-control" />
+		<span asp-validation-for="TieuDeTinTuc" class="text-danger"></span>
+	</div>
+
+	<div class="editor-container">
+		<label asp-for="NoiDungTinTuc" class="control-label">Nội dung tin tức</label>
+		<textarea asp-for="NoiDungTinTuc" class="editor-container" id="Description"></textarea>
+		<span asp-validation-for="NoiDungTinTuc" class="editor-container"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="NgayDang" class="form-label">Ngày đăng</label>
+		<input asp-for="NgayDang" type="date" class="form-control" />
+		<span asp-validation-for="NgayDang" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="NgayKetThuc" class="form-label">Ngày kết thúc</label>
+		<input asp-for="NgayKetThuc" type="date" class="form-control" />
+		<span asp-validation-for="NgayKetThuc" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label for="imageFile" class="form-label">Thay hình ảnh (nếu muốn)</label>
+		<input type="file" name="imageFile" class="form-control" id="imageFile" accept="image/*" onchange="previewImage(event)" />
+	</div>
+
+	<!-- Preview ảnh mới -->
+	<div class="mb-3" id="newImagePreview" style="display:none;">
+		<label>Ảnh mới chọn:</label><br />
+		<img id="previewImg" src="#" width="200" />
+	</div>
+
+	<!-- Ảnh hiện tại -->
+	@if (Model.HinhTinTuc != null)
+	{
+		<div class="mb-3" id="oldImageContainer">
+			<label>Hình hiện tại:</label><br />
+			<img id="oldImage" src="data:image/jpeg;base64,@Convert.ToBase64String(Model.HinhTinTuc)" width="200" />
+		</div>
+	}
+
+
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+	<button type="submit" class="btn btn-primary">Cập nhật</button>
+	<a asp-action="TinTucTuyenDung" class="btn btn-secondary">Quay lại</a>
+</form>
+
+<!-- Thêm thư viện CKEditor -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
+<script>
+	CKEDITOR.ClassicEditor
+		.create(document.querySelector('#Description'), {
+	
+			toolbar: {
+				items: [
+					'undo', 'redo', '|',
+					'heading', '|',
+					'bold', 'italic','underline', '|',
+					'link', '|',
+					'fontColor', 'fontBackgroundColor', '|',
+					'insertTable', 'tableColumn', 'tableRow', 'mergeTableCells',
+					'alignment'
+				]
+			},
+			alignment: {
+				options: ['left', 'center', 'right']
+			},
+			 fontColor: {
+				colors: [
+					{
+						color: '#FF0000',
+						label: 'Đỏ'
+					},
+					{
+						color: '#00FF00',
+						label: 'Xanh lá'
+					},
+					{
+						color: '#0000FF',
+						label: 'Xanh dương'
+					},
+					{
+						color: '#FFFF00',
+						label: 'Vàng'
+					},
+					{
+						color: '#FFA500',
+						label: 'Cam'
+					},
+					{
+						color: '#800080',
+						label: 'Tím'
+					},
+					{
+						color: '#000000',
+						label: 'Đen'
+					},
+					{
+						color: '#FFFFFF',
+						label: 'Trắng'
+					},
+					{
+						color: '#808080',
+						label: 'Xám'
+					},
+					{
+						color: '#FFC0CB',
+						label: 'Hồng nhạt'
+					},
+					{
+						color: '#40E0D0',
+						label: 'Ngọc lam'
+					},
+					{
+						color: '#FFD700',
+						label: 'Vàng kim'
+					}
+				],
+				columns: 6 // Hiển thị màu theo số cột (tùy chỉnh)
+			},
+			language: 'vi',
+			removePlugins: [
+				'RealTimeCollaborativeComments',
+				'RealTimeCollaborativeTrackChanges',
+				'RealTimeCollaboration',
+				'PresenceList',
+				'Comments',
+				'TrackChanges',
+				'CloudServices',
+				'CollaborationClient',
+				'Users',
+				'RevisionHistory',
+				'CKBox',
+				'CKBoxUtils',
+				'CKBoxImageEdit',
+				'CKBoxUI',
+				'CloudServicesUploadAdapter',
+				'EasyImage',
+				'ExportPdf',
+				'ExportWord',
+				'RealTimeCollaborativeRevisionHistory',
+				'TrackChangesEditing',
+				'TrackChangesData',
+				'WProofreader',
+				'DocumentOutline',
+				'AIAssistant',
+				'MultiLevelList',
+				'Pagination',
+				'TableOfContents',
+				'FormatPainter',
+				'Template',
+				'SlashCommand',
+				'PasteFromOfficeEnhanced',
+				'CaseChange', // Đảm bảo loại bỏ CaseChange
+				'ProductivityPack' // Loại bỏ Productivity Pack (bao gồm nhiều tính năng cao cấp)
+			],
+			cloudServices: null
+		})
+		.then(editor => {
+			console.log('CKEditor đã khởi tạo thành công!');
+		})
+		.catch(error => {
+			console.error('Lỗi khi khởi tạo CKEditor:', error);
+		});
+			// Tránh việc di chuyển trang khi thêm nội dung
+	document.querySelector('#Description').addEventListener('input', (event) => {
+		event.preventDefault(); // Ngăn thay đổi cuộn
+	});
+
+</script>
+
+
+
+
+<script>
+	function previewImage(event) {
+		var input = event.target;
+		var reader = new FileReader();
+
+		reader.onload = function () {
+			var preview = document.getElementById('previewImg');
+			preview.src = reader.result;
+			document.getElementById('newImagePreview').style.display = 'block';
+
+			// Ẩn ảnh cũ nếu có
+			var oldImageContainer = document.getElementById('oldImageContainer');
+			if (oldImageContainer) {
+				oldImageContainer.style.display = 'none';
+			}
+		};
+
+		if (input.files && input.files[0]) {
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+</script>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

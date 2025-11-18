@@ -1,0 +1,141 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model DoAnCoSo_Web.Areas.Teacher.ViewModels.XemChiTietLopViewModels
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap4.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<head>
+    <title>Chi tiết lớp học</title>
+</head>
+
+<div class="container mt-4">
+    <a asp-action="Index" class="btn btn-outline-primary mt-2 mb-2">
+        < Về trang chủ
+    </a>
+    <h2 class="text-primary mb-4 fs-3">Lớp học: #@Model.LopHoc.MaLopHoc - @Model.LopHoc.TenLopHoc</h2>
+
+    <!-- Thông tin lớp -->
+    <div class="row shadow-sm mb-4 p-3">
+        <div class="col-4">
+            <img src="data:image/jpg;base64,@Convert.ToBase64String(Model.LopHoc.KhoaHoc.HinhAnhKhoaHoc.FirstOrDefault(h => h.LaAnhDaiDien).NoiDungHinh)"
+                 class="img-fluid rounded-2 h-100 w-100 object-fit-cover" />
+        </div>
+        <div class="col-8 d-flex flex-column justify-content-center">
+            <h5 class="mb-3 font-weight-bold text-dark">Thông tin lớp học</h5>
+            <p class="mb-2">
+                <i class="fas fa-book-open text-primary mr-2"></i>
+                <strong>Khóa học:</strong> <span class="text-muted">@Model.LopHoc.KhoaHoc.TenKhoaHoc</span>
+            </p>
+            <p class="mb-2">
+                <i class="fas fa-school text-success mr-2"></i>
+                <strong>Phòng học:</strong> <span class="text-muted">@Model.LopHoc.PhongHoc.TenPhongHoc</span>
+            </p>
+            <p class="mb-2">
+                <i class="fas fa-calendar-alt text-warning mr-2"></i>
+                <strong>Thời gian:</strong> <span class="text-muted">@Model.LopHoc.NgayKhaiGiang.ToString("dd/MM/yyyy") - @Model.LopHoc.NgayKetThuc.ToString("dd/MM/yyyy")</span>
+            </p>
+            <p class="mb-2">
+                <i class="fas fa-clock text-danger mr-2"></i>
+                <strong>Giờ học:</strong> <span class="text-muted">@Model.LopHoc.KhoaHoc.GioBatDau - @Model.LopHoc.KhoaHoc.GioKetThuc</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Danh sách sinh viên -->
+            <h5 class="card-title mb-3">Danh sách sinh viên</h5>
+            <table id="example" class="table table-striped" style="width:100%">
+                <thead class="thead-light">
+                    <tr>
+                        <th>STT</th>
+                        <th>Họ và tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Nhận xét</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.listSVTrongLop.Count; i++)
+                    {
+                        var sv = Model.listSVTrongLop[i].User;
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@sv.HoTen</td>
+                            <td>@sv.Email</td>
+                            <td>@sv.SDT</td>
+                            <td style="min-width: 300px;">
+                            <form asp-action="LuuNhanXet" class="form-nhanxet">
+                                    <input type="hidden" name="IDHocVien" value="@Model.listSVTrongLop[i].UserId" />
+                                    <input type="hidden" name="MaLop" value="@Model.LopHoc.MaLopHoc" />
+                                    <input type="number" min="0" max="10" name="Diem" class="form-control w-50" required placeholder="Nhập điểm..."
+                                    value="@(Model.listSVTrongLop[i].DiemTongKet ?? 0)" />
+                                    <textarea rows="2" class="form-control mt-1" placeholder="Nhận xét học viên này..." name="NhanXet" required>
+                                        @Model.listSVTrongLop[i].NhanXetCuaGiaoVien
+                                    </textarea>
+                                    <button class="btn btn-primary mt-1" type="submit">Lưu</button>
+                            </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script>
+    new DataTable('#example',{
+         columnDefs: [
+        { targets: 0, searchable: true },
+        { targets: [1], searchable: false }
+      ]
+    });
+
+    $(document).ready(function () {
+        $(".form-nhanxet").on("submit", function (e) {
+            e.preventDefault();
+
+            const form = $(this);
+            const formData = form.serialize();
+
+            $.ajax({
+                url: '@Url.Action("LuuNhanXet", new { area = "Teacher" })',
+                method: 'POST',
+                data: formData,
+                success: function (res) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon:'success',
+                        title: res.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Xảy ra lỗi khi lưu nhận xét',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+            });
+        });
+    });
+</script>

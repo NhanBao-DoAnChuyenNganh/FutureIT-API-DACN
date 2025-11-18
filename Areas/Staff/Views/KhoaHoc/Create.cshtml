@@ -1,0 +1,221 @@
+﻿@model DoAnCoSo_Web.Models.KhoaHoc
+<style>
+    .ck-content a {
+        color: #007BFF !important; /* Màu xanh */
+        text-decoration: underline;
+    }
+
+</style>
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Flatpickr Theme (tùy chọn) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_green.css">
+<form asp-action="Create" method="post" class="form-horizontal" enctype="multipart/form-data">
+
+	<div class="mb-3">
+		<label asp-for="TenKhoaHoc" class="form-label">Tên khóa học</label>
+		<input asp-for="TenKhoaHoc" class="form-control" />
+		<span asp-validation-for="TenKhoaHoc" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="HocPhi" class="control-label">Học phí</label>
+		<input asp-for="HocPhi" class="form-control" type="number"  />
+		<span asp-validation-for="HocPhi" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="MoTa" class="control-label">Mô tả</label>
+		<textarea asp-for="MoTa" class="form-control" id="Description"></textarea>
+		<span asp-validation-for="MoTa" class="text-danger"></span>
+	</div>
+
+	<div class="form-group row">
+		<label for="NgayHoc" class="col-sm-2 col-form-label">Ngày học</label>
+		<div class="col-sm-10">
+			<select asp-for="NgayHoc" class="form-control">
+				<option value="Sáng T2, 4, 6">Sáng T2, 4, 6</option>
+				<option value="Chiều T2, 4, 6">Chiều T2, 4, 6</option>
+				<option value="Sáng T3, 5, 7">Sáng T3, 5, 7</option>
+				<option value="Chiều T3, 5, 7">Chiều T3, 5, 7</option>
+			</select>
+		</div>
+	</div>
+
+
+
+	<div class="mb-3">
+		<label asp-for="GioBatDau" class="control-label">Giờ bắt đầu</label>
+		<input asp-for="GioBatDau" class="form-control timepicker" placeholder="Mời chọn giờ bắt đầu" />
+		<span asp-validation-for="GioBatDau" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="GioKetThuc" class="control-label">Giờ kết thúc</label>
+		<input asp-for="GioKetThuc" class="form-control timepicker" placeholder="Mời chọn giờ kết thúc" />
+		<span asp-validation-for="GioKetThuc" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<label>Ảnh đại diện (bắt buộc):</label>
+		<input type="file" name="avatarImage" class="form-control" accept="image/*" />
+		@if (ViewData["avatarImageError"] != null)
+		{
+			<span class="text-danger">@ViewData["avatarImageError"]</span>
+		}
+	</div>
+
+	<div class="mb-3">
+		<label>3 ảnh bổ sung (bắt buộc):</label>
+		<input type="file" name="additionalImages" class="form-control" multiple accept="image/*" />
+		@if (ViewData["additionalImagesError"] != null)
+		{
+			<span class="text-danger">@ViewData["additionalImagesError"]</span>
+		}
+	</div>
+
+
+	
+
+
+	<button type="submit" class="btn btn-primary mt-3">Tạo khóa học</button>
+	<a asp-action="Index" class="btn btn-secondary mt-3">Hủy</a>
+</form>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Giao diện AM/PM -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
+<script>
+	flatpickr(".timepicker", {
+		enableTime: true,
+		noCalendar: true,
+		dateFormat: "h:i K", // 12-hour format with AM/PM
+		time_24hr: false
+	});
+</script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
+<script>
+	CKEDITOR.ClassicEditor
+		.create(document.querySelector('#Description'), {
+
+			toolbar: {
+				items: [
+					'undo', 'redo', '|',
+					'heading', '|',
+					'bold', 'italic','underline', '|',
+					'link', '|',
+					'fontColor', 'fontBackgroundColor', '|',
+					'insertTable', 'tableColumn', 'tableRow', 'mergeTableCells',
+					'alignment'
+				]
+			},
+			alignment: {
+				options: ['left', 'center', 'right']
+			},
+			 fontColor: {
+				colors: [
+					{
+						color: '#FF0000',
+						label: 'Đỏ'
+					},
+					{
+						color: '#00FF00',
+						label: 'Xanh lá'
+					},
+					{
+						color: '#0000FF',
+						label: 'Xanh dương'
+					},
+					{
+						color: '#FFFF00',
+						label: 'Vàng'
+					},
+					{
+						color: '#FFA500',
+						label: 'Cam'
+					},
+					{
+						color: '#800080',
+						label: 'Tím'
+					},
+					{
+						color: '#000000',
+						label: 'Đen'
+					},
+					{
+						color: '#FFFFFF',
+						label: 'Trắng'
+					},
+					{
+						color: '#808080',
+						label: 'Xám'
+					},
+					{
+						color: '#FFC0CB',
+						label: 'Hồng nhạt'
+					},
+					{
+						color: '#40E0D0',
+						label: 'Ngọc lam'
+					},
+					{
+						color: '#FFD700',
+						label: 'Vàng kim'
+					}
+				],
+				columns: 6 // Hiển thị màu theo số cột (tùy chỉnh)
+			},
+			language: 'vi',
+			removePlugins: [
+				'RealTimeCollaborativeComments',
+				'RealTimeCollaborativeTrackChanges',
+				'RealTimeCollaboration',
+				'PresenceList',
+				'Comments',
+				'TrackChanges',
+				'CloudServices',
+				'CollaborationClient',
+				'Users',
+				'RevisionHistory',
+				'CKBox',
+				'CKBoxUtils',
+				'CKBoxImageEdit',
+				'CKBoxUI',
+				'CloudServicesUploadAdapter',
+				'EasyImage',
+				'ExportPdf',
+				'ExportWord',
+				'RealTimeCollaborativeRevisionHistory',
+				'TrackChangesEditing',
+				'TrackChangesData',
+				'WProofreader',
+				'DocumentOutline',
+				'AIAssistant',
+				'MultiLevelList',
+				'Pagination',
+				'TableOfContents',
+				'FormatPainter',
+				'Template',
+				'SlashCommand',
+				'PasteFromOfficeEnhanced',
+				'CaseChange', // Đảm bảo loại bỏ CaseChange
+				'ProductivityPack' // Loại bỏ Productivity Pack (bao gồm nhiều tính năng cao cấp)
+			],
+			cloudServices: null
+		})
+		.then(editor => {
+			console.log('CKEditor đã khởi tạo thành công!');
+		})
+		.catch(error => {
+			console.error('Lỗi khi khởi tạo CKEditor:', error);
+		});
+			// Tránh việc di chuyển trang khi thêm nội dung
+	document.querySelector('#Description').addEventListener('input', (event) => {
+		event.preventDefault(); // Ngăn thay đổi cuộn
+	});
+
+</script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
