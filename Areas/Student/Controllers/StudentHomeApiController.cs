@@ -216,5 +216,47 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
 
             return Ok(list);
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult GetTinTuc()
+        {
+            var listTinTuc = _db.TinTucTuyenDung
+                                .OrderByDescending(t => t.NgayDang)
+                                .Select(t => new
+                                {
+                                    t.MaTinTuc,
+                                    t.TieuDeTinTuc,
+                                    t.NgayDang,
+                                    t.NgayKetThuc,
+                                    NoiDung = t.NoiDungTinTuc,
+                                    HinhAnh = t.HinhTinTuc != null
+                                        ? $"{_appSettings.BaseUrl}/api/Image/GetTinTuc?id={t.MaTinTuc}"
+                                        : null
+                                })
+                                .ToList();
+            return Ok(listTinTuc);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{id}")]
+        public IActionResult GetChiTietTin(int id)
+        {
+            var tin = _db.TinTucTuyenDung.FirstOrDefault(t => t.MaTinTuc == id);
+            if (tin == null)
+                return NotFound(new { message = "Không tìm thấy tin tức" });
+
+            var result = new
+            {
+                tin.MaTinTuc,
+                tin.TieuDeTinTuc,
+                tin.NgayDang,
+                tin.NgayKetThuc,
+                NoiDung = tin.NoiDungTinTuc,
+                HinhAnh = tin.HinhTinTuc != null
+                    ? $"{_appSettings.BaseUrl}/api/Image/GetTinTuc?id={tin.MaTinTuc}"
+                    : null
+            };
+            return Ok(result);
+        }
     }
 }

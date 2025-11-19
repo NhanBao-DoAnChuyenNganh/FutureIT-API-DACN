@@ -30,6 +30,17 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
 
             return File(img.NoiDungHinh, "image/jpeg");
         }
+        [HttpGet("GetTinTuc")]
+        public IActionResult GetTinTuc(int id)
+        {
+            var tin = _db.TinTucTuyenDung.FirstOrDefault(x => x.MaTinTuc == id);
+
+            if (tin == null || tin.HinhTinTuc == null)
+                return NotFound();
+
+            return File(tin.HinhTinTuc, "image/jpeg");
+        }
+
     }
 
 }
