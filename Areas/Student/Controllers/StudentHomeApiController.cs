@@ -258,5 +258,145 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
             };
             return Ok(result);
         }
+        [AllowAnonymous]
+        [HttpGet("{id}")]
+        public IActionResult GetChiTietKhoaHoc(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var kh = _db.KhoaHoc
+                .Include(k => k.HinhAnhKhoaHoc)
+                .FirstOrDefault(k => k.MaKhoaHoc == id);
+
+            if (kh == null)
+                return NotFound(new { message = "Không tìm thấy khóa học" });
+
+            // Lấy danh sách hình ảnh
+            var listHinh = _db.HinhAnhKhoaHoc
+                .Where(h => h.KhoaHocMaKhoaHoc == id)
+                .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                .ToList();
+
+            // Lấy toàn bộ đánh giá ra memory
+            var listDanhGia = _db.DanhGia
+                .Where(d => d.KhoaHocMaKhoaHoc == id)
+                .Include(d => d.User)
+                .ToList();
+
+            bool daQuanTam = _db.DanhSachQuanTam.Any(q => q.MaKhoaHoc == id && q.UserId == userId);
+
+            // Tính số sao trung bình
+            var soSaoTB = LamTron(
+                listDanhGia
+                    .Select(d => d.SoSaoDanhGia)
+                    .DefaultIfEmpty(0)
+                    .Average()
+            );
+
+            // Map danh sách đánh giá sang object cần thiết
+            var danhGiaDto = listDanhGia
+                .Select(d => new
+                {
+                    d.MaDanhGia,
+                    d.SoSaoDanhGia,
+                    d.NoiDungDanhGia,
+                    d.NgayDanhGia,
+                    User = d.User.HoTen
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                kh.MaKhoaHoc,
+                kh.TenKhoaHoc,
+                kh.NgayHoc,
+                kh.GioBatDau,
+                kh.GioKetThuc,
+                kh.HocPhi,
+                DaYeuThich = daQuanTam,
+                SoSaoTrungBinh = soSaoTB,
+                TongLuotBinhLuan = danhGiaDto.Count,
+                HinhAnh = listHinh,
+                DanhGia = danhGiaDto
+            });
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpPost]
+        public IActionResult ToggleQuanTam([FromBody] int maKhoaHoc)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var exists = _db.DanhSachQuanTam
+                .FirstOrDefault(x => x.MaKhoaHoc == maKhoaHoc && x.UserId == userId);
+
+            if (exists != null)
+            {
+                _db.DanhSachQuanTam.Remove(exists);
+                _db.SaveChanges();
+                return Ok(new { success = true, message = "Đã xóa khỏi danh sách quan tâm" });
+            }
+
+            _db.DanhSachQuanTam.Add(new DanhSachQuanTam
+            {
+                MaKhoaHoc = maKhoaHoc,
+                UserId = userId
+            });
+
+            _db.SaveChanges();
+            return Ok(new { success = true, message = "Đã thêm vào danh sách quan tâm" });
+        }
+        [Authorize(Roles = "Student")]
+        [HttpGet]
+        public IActionResult GetDanhSachQuanTam()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var list = _db.DanhSachQuanTam
+                .Include(ds => ds.KhoaHoc)
+                .ThenInclude(kh => kh.HinhAnhKhoaHoc)
+                .Where(ds => ds.UserId == userId)
+                .Select(kh => new
+                {
+                    kh.KhoaHoc.MaKhoaHoc,
+                    kh.KhoaHoc.TenKhoaHoc,
+                    kh.KhoaHoc.HocPhi,
+                    HinhAnh = kh.KhoaHoc.HinhAnhKhoaHoc
+                        .Where(h => h.LaAnhDaiDien)
+                        .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                        .FirstOrDefault()
+                })
+                .ToList();
+
+            return Ok(list);
+        }
+        public class GuiDanhGiaDTO
+        {
+            public int MaKhoaHoc { get; set; }
+            public int SoSao { get; set; }
+            public string NoiDung { get; set; }
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpPost]
+        public IActionResult GuiDanhGia([FromBody] GuiDanhGiaDTO model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var danhGia = new DanhGia
+            {
+                KhoaHocMaKhoaHoc = model.MaKhoaHoc,
+                SoSaoDanhGia = model.SoSao,
+                NoiDungDanhGia = model.NoiDung,
+                NgayDanhGia = DateTime.Now,
+                UserUserId = userId
+            };
+
+            _db.DanhGia.Add(danhGia);
+            _db.SaveChanges();
+
+            return Ok(new { success = true, message = "Gửi đánh giá thành công" });
+        }
+
     }
 }
