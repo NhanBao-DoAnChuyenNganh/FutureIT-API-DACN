@@ -313,6 +313,7 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
                 kh.GioBatDau,
                 kh.GioKetThuc,
                 kh.HocPhi,
+                kh.MoTa,
                 DaYeuThich = daQuanTam,
                 SoSaoTrungBinh = soSaoTB,
                 TongLuotBinhLuan = danhGiaDto.Count,
@@ -321,7 +322,7 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
             });
         }
 
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes = "JwtBearer", Roles = "Student")]
         [HttpPost]
         public IActionResult ToggleQuanTam([FromBody] int maKhoaHoc)
         {
@@ -346,7 +347,7 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
             _db.SaveChanges();
             return Ok(new { success = true, message = "Đã thêm vào danh sách quan tâm" });
         }
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes = "JwtBearer", Roles = "Student")]
         [HttpGet]
         public IActionResult GetDanhSachQuanTam()
         {
@@ -377,7 +378,7 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
             public string NoiDung { get; set; }
         }
 
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes = "JwtBearer", Roles = "Student")]
         [HttpPost]
         public IActionResult GuiDanhGia([FromBody] GuiDanhGiaDTO model)
         {
