@@ -398,6 +398,143 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
 
             return Ok(new { success = true, message = "Gửi đánh giá thành công" });
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetTeacher()
+        {
+            // Lấy RoleId của role Teacher
+            var roleId = await _db.Roles
+                .Where(r => r.Name == "Teacher")
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
 
+            if (roleId == null)
+            {
+                return NotFound(new { message = "Không tìm thấy role Teacher" });
+            }
+
+            // Lấy danh sách user có role Teacher
+            var listTeacher = await _db.Users
+                .Where(u => _db.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == roleId))
+                .ToListAsync();
+
+            var result = listTeacher.Select(u => new
+            {
+                HoTen = u.HoTen,
+                DiaChi = u.DiaChi,
+                Avatar = u.Avatar != null
+                 ? $"{_appSettings.BaseUrl}/api/Image/GetAvatar?userId={u.Id}"
+                 : "/image/avatar.png",
+
+                ChuyenNganh = u.ChuyenNganhMaChuyenNganh != null
+                    ? _db.ChuyenNganh
+                        .Where(c => c.MaChuyenNganh == u.ChuyenNganhMaChuyenNganh)
+                        .Select(c => c.TenChuyenNganh)
+                        .FirstOrDefault()
+                    : "Chưa cập nhật"
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public IActionResult GetKhoaHocDaDangKy(DateTime? startDate)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            DateTime today = startDate ?? DateTime.Today;
+            int x;
+            if (today.DayOfWeek == DayOfWeek.Sunday)
+            {
+                x = -6;
+            }
+            else
+            {
+                x = -(int)today.DayOfWeek + 1;
+            }
+            DateTime weekStart = today.AddDays(x);
+            // Chờ xếp lớp: listPhieuDangKy
+            var listPhieuDangKy = _db.PhieuDangKyKhoaHoc
+                .Where(p => p.UserId == userId)
+                .Include(p => p.KhoaHoc).ThenInclude(k => k.HinhAnhKhoaHoc)
+                .Where(p => p.TrangThaiDangKy == "Chờ xử lý")
+                .Select(p => new
+                {
+                    p.MaKhoaHoc,
+                    p.KhoaHoc.TenKhoaHoc,
+                    p.TrangThaiDangKy,
+                    p.TrangThaiThanhToan,
+                    HinhAnh = p.KhoaHoc.HinhAnhKhoaHoc
+                        .Where(h => h.LaAnhDaiDien)
+                        .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                        .FirstOrDefault()
+                })
+                .ToList();
+
+            // Đang học: listDangHoc
+            var listDangHoc = _db.ChiTietHocTap
+                .Where(m => m.UserId == userId && m.LopHoc.NgayKetThuc > DateTime.Now)
+                .Include(m => m.LopHoc)
+                    .ThenInclude(l => l.KhoaHoc)
+                        .ThenInclude(k => k.HinhAnhKhoaHoc)
+                .Include(m => m.LopHoc)
+                    .ThenInclude(l => l.PhongHoc)
+                .Select(m => new
+                {
+                    m.LopHoc.MaLopHoc,
+                    m.LopHoc.KhoaHoc.TenKhoaHoc,
+                    m.LopHoc.NgayKhaiGiang,
+                    m.LopHoc.NgayKetThuc,
+                    PhongHoc = m.LopHoc.PhongHoc.TenPhongHoc,
+                    HinhAnh = m.LopHoc.KhoaHoc.HinhAnhKhoaHoc
+                        .Where(h => h.LaAnhDaiDien)
+                        .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                        .FirstOrDefault()
+                }).ToList();
+
+            // Đã học: listDaHoc
+            var listDaHoc = _db.ChiTietHocTap
+                .Where(m => m.UserId == userId && m.LopHoc.NgayKetThuc <= DateTime.Now)
+                .Include(m => m.LopHoc)
+                    .ThenInclude(l => l.KhoaHoc)
+                        .ThenInclude(k => k.HinhAnhKhoaHoc)
+                .Select(m => new
+                {
+                    m.LopHoc.MaLopHoc,
+                    m.LopHoc.KhoaHoc.TenKhoaHoc,
+                    m.LopHoc.NgayKhaiGiang,
+                    m.LopHoc.NgayKetThuc,
+                    HinhAnh = m.LopHoc.KhoaHoc.HinhAnhKhoaHoc
+                        .Where(h => h.LaAnhDaiDien)
+                        .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                        .FirstOrDefault(),
+                    m.NhanXetCuaGiaoVien,
+                    m.DiemTongKet
+                }).ToList();
+
+            // Chưa thanh toán hết: listConNo
+            var listConNo = _db.PhieuDangKyKhoaHoc
+                .Where(p => p.UserId == userId && p.TrangThaiThanhToan == "Thanh toán 50%")
+                .Include(p => p.KhoaHoc).ThenInclude(k => k.HinhAnhKhoaHoc)
+                .Include(p => p.HoaDon)
+                .Select(p => new
+                {
+                    p.MaKhoaHoc,
+                    p.KhoaHoc.TenKhoaHoc,
+                    p.HoaDon.TienDongLan1,
+                    p.KhoaHoc.HocPhi,
+                    HinhAnh = p.KhoaHoc.HinhAnhKhoaHoc
+                        .Where(h => h.LaAnhDaiDien)
+                        .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                        .FirstOrDefault()
+                }).ToList();
+
+            return Ok(new
+            {
+                listPhieuDangKy,
+                listDangHoc,
+                listDaHoc,
+                listConNo
+            });
+        }
     }
 }

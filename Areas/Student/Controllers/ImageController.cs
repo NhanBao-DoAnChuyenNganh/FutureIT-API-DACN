@@ -40,6 +40,16 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
 
             return File(tin.HinhTinTuc, "image/jpeg");
         }
+        [HttpGet("GetAvatar")]
+        public IActionResult GetAvatar(string userId)
+        {
+            var user = _db.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null || user.Avatar == null)
+                return NotFound();
+
+            return File(user.Avatar, "image/jpeg");
+        }
 
     }
 
