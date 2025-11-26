@@ -548,7 +548,7 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
 
             return Ok(result);
         }
-
+        [Authorize(AuthenticationSchemes = "JwtBearer", Roles = "Student")]
         [HttpGet]
         public IActionResult GetKhoaHocDaDangKy(DateTime? startDate)
         {
@@ -584,24 +584,20 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
 
             // Đang học: listDangHoc
             var listDangHoc = _db.ChiTietHocTap
-                .Where(m => m.UserId == userId && m.LopHoc.NgayKetThuc > DateTime.Now)
-                .Include(m => m.LopHoc)
-                    .ThenInclude(l => l.KhoaHoc)
-                        .ThenInclude(k => k.HinhAnhKhoaHoc)
-                .Include(m => m.LopHoc)
-                    .ThenInclude(l => l.PhongHoc)
-                .Select(m => new
-                {
-                    m.LopHoc.MaLopHoc,
-                    m.LopHoc.KhoaHoc.TenKhoaHoc,
-                    m.LopHoc.NgayKhaiGiang,
-                    m.LopHoc.NgayKetThuc,
-                    PhongHoc = m.LopHoc.PhongHoc.TenPhongHoc,
-                    HinhAnh = m.LopHoc.KhoaHoc.HinhAnhKhoaHoc
-                        .Where(h => h.LaAnhDaiDien)
-                        .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
-                        .FirstOrDefault()
-                }).ToList();
+     .Where(m => m.UserId == userId && m.LopHoc.NgayKetThuc > DateTime.Now)
+     .Include(m => m.LopHoc)
+         .ThenInclude(l => l.KhoaHoc)
+     .Include(m => m.LopHoc)
+         .ThenInclude(l => l.PhongHoc)
+     .Select(m => new
+     {
+         m.LopHoc.MaLopHoc,
+         m.LopHoc.KhoaHoc.TenKhoaHoc,
+         m.LopHoc.NgayKhaiGiang,
+         m.LopHoc.NgayKetThuc,
+         PhongHoc = m.LopHoc.PhongHoc.TenPhongHoc,
+         NgayHoc = m.LopHoc.KhoaHoc.NgayHoc
+     }).ToList();
 
             // Đã học: listDaHoc
             var listDaHoc = _db.ChiTietHocTap

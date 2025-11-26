@@ -328,9 +328,10 @@ namespace DoAnCoSo_Web.Areas.Staff.Controllers
                         var gioBatDauLop = DateTime.ParseExact(khoaHoc.GioBatDau, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
                         var gioKetThucLop = DateTime.ParseExact(khoaHoc.GioKetThuc, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
 
-                        bool giaoGioHoc = gioBatDauMoiTime < gioKetThucLop && gioKetThucMoiTime > gioBatDauLop;
+                    bool giaoGioHoc = gioKetThucMoiTime > gioBatDauLop && gioBatDauMoiTime < gioKetThucLop;
 
-                        if (giaoGioHoc)
+
+                    if (giaoGioHoc)
                         {
                             return true; // Xung đột lịch học
                         }
@@ -520,9 +521,12 @@ namespace DoAnCoSo_Web.Areas.Staff.Controllers
 
             // Lấy danh sách lớp học đã có trong phòng học
             var lopHocList = await _db.LopHoc
-                .Include(lh => lh.KhoaHoc)
-                .Where(lh => lh.PhongHocMaPhongHoc == phongHocId && (lopHocId == null || lh.MaLopHoc != lopHocId)) // Tránh lớp hiện tại
-                .ToListAsync();
+    .Include(lh => lh.KhoaHoc)
+    .Where(lh => lh.PhongHocMaPhongHoc == phongHocId
+              && (lopHocId == null || lh.MaLopHoc != lopHocId)
+              && lh.NgayKetThuc >= DateTime.Now) // bỏ qua lớp đã kết thúc
+    .ToListAsync();
+
 
             foreach (var lopHoc in lopHocList)
             {
@@ -652,60 +656,81 @@ namespace DoAnCoSo_Web.Areas.Staff.Controllers
             return RedirectToAction("Index");
         }
         private async Task<List<string>> GetLichHocBiTrung(
-       string userId,
-       string ngayHocMoi,
-       DateTime ngayKhaiGiangMoi,
-       DateTime ngayKetThucMoi,
-       string gioBatDauMoi,
-       string gioKetThucMoi)
+    string userId,
+    string ngayHocMoi,
+    DateTime ngayBatDauMoi,
+    DateTime ngayKetThucMoi,
+    string gioBatDauMoi,
+    string gioKetThucMoi)
         {
             var conflicts = new List<string>();
 
+            // Helper kiểm tra giờ học có giao nhau
+            bool GiaoThoiGian(TimeSpan start1, TimeSpan end1, TimeSpan start2, TimeSpan end2)
+            {
+                return start1 < end2 && start2 < end1;
+            }
 
-            var ngayHocMoiParts = ngayHocMoi.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var buoiMoi = ngayHocMoiParts[0].Trim().ToLower(); // "sáng" hoặc "chiều"
-            var daysOfWeekMoi = ngayHocMoiParts.Length > 1
-                ? ngayHocMoiParts[1].Split(',').Select(t => t.Trim().Replace("T", "")).ToList()
-                : new List<string>();
+            // Tách ca học và ngày học mới
+            var partsMoi = ngayHocMoi.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (partsMoi.Length < 2) return conflicts;
+
+            var caHocMoi = partsMoi[0].Trim();
+            var daysOfWeekMoi = partsMoi[1].Split(',')
+                .Select(d => d.Trim().Replace("T", ""))
+                .Where(d => !string.IsNullOrEmpty(d))
+                .ToList();
 
             var gioBatDauMoiTime = DateTime.ParseExact(gioBatDauMoi, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
             var gioKetThucMoiTime = DateTime.ParseExact(gioKetThucMoi, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
 
-
+            // Lấy tất cả lớp hiện tại của user
             var lopHocList = await _db.ChiTietHocTap
+                .AsNoTracking()
                 .Include(ct => ct.LopHoc)
                     .ThenInclude(lh => lh.KhoaHoc)
                 .Where(ct => ct.UserId == userId)
                 .Select(ct => ct.LopHoc)
                 .ToListAsync();
 
+            // Kiểm tra trùng với lớp đang học
             foreach (var lop in lopHocList)
             {
                 var khoaHoc = lop.KhoaHoc;
 
-                var ngayHocLopParts = khoaHoc.NgayHoc.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                var buoiLop = ngayHocLopParts[0].Trim().ToLower();
-                var daysOfWeekLop = ngayHocLopParts.Length > 1
-                    ? ngayHocLopParts[1].Split(',').Select(t => t.Trim().Replace("T", "")).ToList()
-                    : new List<string>();
+                // Kiểm tra khoảng thời gian lớp mới có giao với lớp hiện tại không
+                if (ngayKetThucMoi < lop.NgayKhaiGiang || ngayBatDauMoi > lop.NgayKetThuc)
+                    continue;
 
-                bool trungBuoi = buoiMoi == buoiLop;
-                bool trungNgayHoc = daysOfWeekLop.Any(d => daysOfWeekMoi.Contains(d));
+                var partsLop = khoaHoc.NgayHoc.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (partsLop.Length < 2) continue;
 
-                if (trungBuoi && trungNgayHoc)
+                var caHocLop = partsLop[0].Trim();
+                var daysOfWeekLop = partsLop[1].Split(',')
+                    .Select(d => d.Trim().Replace("T", ""))
+                    .Where(d => !string.IsNullOrEmpty(d))
+                    .ToList();
+
+                // Ca học khác → bỏ qua
+                if (caHocMoi != caHocLop) continue;
+
+                // Ngày học giao nhau → xét tiếp
+                if (!daysOfWeekMoi.Any(d => daysOfWeekLop.Contains(d)))
+                    continue;
+
+                var gioBatDauLop = DateTime.ParseExact(khoaHoc.GioBatDau, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
+                var gioKetThucLop = DateTime.ParseExact(khoaHoc.GioKetThuc, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
+
+                if (GiaoThoiGian(gioBatDauMoiTime, gioKetThucMoiTime, gioBatDauLop, gioKetThucLop))
                 {
-                    var gioBatDau =  DateTime.ParseExact(khoaHoc.GioBatDau, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
-                    var gioKetThuc = DateTime.ParseExact(khoaHoc.GioKetThuc, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
-
-                    bool giaoGioHoc = gioBatDauMoiTime < gioKetThuc && gioKetThucMoiTime > gioBatDau;
-
-                    if (giaoGioHoc)
-                    {
-                        conflicts.Add($"Trùng với lớp đang học: '{khoaHoc.TenKhoaHoc}' học {khoaHoc.NgayHoc} từ {khoaHoc.GioBatDau} đến {khoaHoc.GioKetThuc}");
-                    }
+                    conflicts.Add($"Trùng với lớp đang học: '{khoaHoc.TenKhoaHoc}' học {khoaHoc.NgayHoc} từ {khoaHoc.GioBatDau} đến {khoaHoc.GioKetThuc}");
+                    break;
                 }
             }
+
+            // Kiểm tra phiếu đăng ký chưa xếp lớp
             var phieuDangKyChuaXepLop = await _db.PhieuDangKyKhoaHoc
+                .AsNoTracking()
                 .Include(p => p.KhoaHoc)
                 .Where(p => p.UserId == userId && p.TrangThaiDangKy != "Đã xếp lớp")
                 .Select(p => p.KhoaHoc)
@@ -713,31 +738,33 @@ namespace DoAnCoSo_Web.Areas.Staff.Controllers
 
             foreach (var khoaHoc in phieuDangKyChuaXepLop)
             {
-                var ngayHocLopParts = khoaHoc.NgayHoc.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                var buoiLop = ngayHocLopParts[0].Trim().ToLower();
-                var daysOfWeekLop = ngayHocLopParts.Length > 1
-                    ? ngayHocLopParts[1].Split(',').Select(t => t.Trim().Replace("T", "")).ToList()
-                    : new List<string>();
+                var partsLop = khoaHoc.NgayHoc.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (partsLop.Length < 2) continue;
 
-                bool trungBuoi = buoiMoi == buoiLop;
-                bool trungNgayHoc = daysOfWeekLop.Any(d => daysOfWeekMoi.Contains(d));
+                var caHocLop = partsLop[0].Trim();
+                var daysOfWeekLop = partsLop[1].Split(',')
+                    .Select(d => d.Trim().Replace("T", ""))
+                    .Where(d => !string.IsNullOrEmpty(d))
+                    .ToList();
 
-                if (trungBuoi && trungNgayHoc)
+                if (caHocMoi != caHocLop) continue;
+                if (!daysOfWeekMoi.Any(d => daysOfWeekLop.Contains(d))) continue;
+
+                var gioBatDauLop = DateTime.ParseExact(khoaHoc.GioBatDau, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
+                var gioKetThucLop = DateTime.ParseExact(khoaHoc.GioKetThuc, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
+
+                if (GiaoThoiGian(gioBatDauMoiTime, gioKetThucMoiTime, gioBatDauLop, gioKetThucLop))
                 {
-                    var gioBatDau = DateTime.ParseExact(khoaHoc.GioBatDau, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
-                    var gioKetThuc = DateTime.ParseExact(khoaHoc.GioKetThuc, "h:mm tt", CultureInfo.InvariantCulture).TimeOfDay;
-
-                    bool giaoGioHoc = gioBatDauMoiTime < gioKetThuc && gioKetThucMoiTime > gioBatDau;
-
-                    if (giaoGioHoc)
-                    {
-                        conflicts.Add($"Đã đăng ký khóa '{khoaHoc.TenKhoaHoc}' học {khoaHoc.NgayHoc} từ {khoaHoc.GioBatDau} đến {khoaHoc.GioKetThuc} (chưa xếp lớp)");
-                    }
+                    conflicts.Add($"Đã đăng ký khóa '{khoaHoc.TenKhoaHoc}' học {khoaHoc.NgayHoc} từ {khoaHoc.GioBatDau} đến {khoaHoc.GioKetThuc} (chưa xếp lớp)");
+                    break;
                 }
             }
 
             return conflicts;
         }
+
+
+
 
 
 
