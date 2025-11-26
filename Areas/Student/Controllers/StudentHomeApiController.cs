@@ -32,12 +32,124 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
             return nguyen + 1.0;
         }
 
+
+
         /// <summary>
         /// BaseQuery trả IQueryable KhoaHoc, có Include hình ảnh
         /// </summary>
         private IQueryable<KhoaHoc> BaseQuery()
         {
             return _db.KhoaHoc.Include(kh => kh.HinhAnhKhoaHoc).OrderBy(kh => kh.TenKhoaHoc);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult GetStudentHomeData()
+        {
+            try
+            {
+                // Lấy 2 tin tức mới nhất
+                var list2TinMoiNhat = _db.TinTucTuyenDung.OrderByDescending(t => t.NgayDang).Take(2)
+                    .Select(t => new
+                    {
+                        t.TieuDeTinTuc,
+                        t.NoiDungTinTuc,
+                        t.NgayDang,
+                        HinhTinTuc = $"{_appSettings.BaseUrl}/api/Image/GetTinTuc?id={t.MaTinTuc}"
+                    }).ToList();
+
+                // Lấy 3 khóa học phổ biến
+                var listPhoBien = _db.KhoaHoc
+                    .Where(p => p.MaKhoaHoc == 3 || p.MaKhoaHoc == 5 || p.MaKhoaHoc == 7)
+                    .Include(h => h.HinhAnhKhoaHoc)
+                    .Select(k => new
+                    {
+                        k.TenKhoaHoc,
+                        k.MoTa,
+                        k.HocPhi,
+                        HinhAnh = k.HinhAnhKhoaHoc
+                            .Where(h => h.LaAnhDaiDien)
+                            .Select(h => $"{_appSettings.BaseUrl}/api/Image/Get?id={h.MaHinh}")
+                            .FirstOrDefault()
+                    }).ToList();
+
+                // Lấy 4 giảng viên tiêu biểu
+                var gvtb1 = _db.User
+                    .Include(p => p.ChuyenNganh)
+                    .Where(p => p.ChuyenNganhMaChuyenNganh == 2)
+                    .Select(u => new
+                    {
+                        u.HoTen,
+                        u.Email,
+                        Avatar = $"{_appSettings.BaseUrl}/api/Image/GetAvatar?userId={u.Id}",
+                        ChuyenNganh = u.ChuyenNganh.TenChuyenNganh != null ? u.ChuyenNganh.TenChuyenNganh : null
+                    })
+                    .FirstOrDefault();
+
+                var gvtb2 = _db.User
+                    .Include(p => p.ChuyenNganh)
+                    .Where(p => p.ChuyenNganhMaChuyenNganh == 3)
+                    .Select(u => new
+                    {
+                        u.HoTen,
+                        u.Email,
+                        Avatar = $"{_appSettings.BaseUrl}/api/Image/GetAvatar?userId={u.Id}",
+                        ChuyenNganh = u.ChuyenNganh.TenChuyenNganh != null ? u.ChuyenNganh.TenChuyenNganh : null
+                    })
+                    .FirstOrDefault();
+
+                var gvtb3 = _db.User
+                    .Include(p => p.ChuyenNganh)
+                    .Where(p => p.ChuyenNganhMaChuyenNganh == 4)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.HoTen,
+                        u.Email,
+                        Avatar = $"{_appSettings.BaseUrl}/api/Image/GetAvatar?userId={u.Id}",
+                        ChuyenNganh = u.ChuyenNganh.TenChuyenNganh != null ? u.ChuyenNganh.TenChuyenNganh : null
+                    })
+                    .FirstOrDefault();
+
+                var gvtb4 = _db.User
+                    .Include(p => p.ChuyenNganh)
+                    .Where(p => p.ChuyenNganhMaChuyenNganh == 5)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.HoTen,
+                        u.Email,
+                        Avatar = $"{_appSettings.BaseUrl}/api/Image/GetAvatar?userId={u.Id}",
+                        ChuyenNganh = u.ChuyenNganh.TenChuyenNganh != null ? u.ChuyenNganh.TenChuyenNganh : null
+                    })
+                    .FirstOrDefault();
+
+                // Trả về dữ liệu JSON
+                var response = new
+                {
+                    success = true,
+                    data = new
+                    {
+                        tinMoi1 = list2TinMoiNhat.Count > 0 ? list2TinMoiNhat[0] : null,
+                        tinMoi2 = list2TinMoiNhat.Count > 1 ? list2TinMoiNhat[1] : null,
+                        list3KhoaHocPhoBien = listPhoBien,
+                        gvtb1,
+                        gvtb2,
+                        gvtb3,
+                        gvtb4
+                    }
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi lấy dữ liệu",
+                    error = ex.Message
+                });
+            }
         }
 
         /// <summary>
