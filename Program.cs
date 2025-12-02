@@ -3,8 +3,9 @@ using DoAnCoSo_Web.Areas.Student.MomoService;
 using DoAnCoSo_Web.Areas.Student.VnpayService;
 using DoAnCoSo_Web.Data;
 using DoAnCoSo_Web.Models;
-using DoAnCoSo_Web.Models.Momo;
 using DoAnCoSo_Web.Models.AppSettings;
+using DoAnCoSo_Web.Models.Momo;
+using DoAnCoSo_Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
@@ -39,7 +40,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();
-
+builder.Services.AddScoped<GeminiService>();
 builder.Services.AddAuthentication(options => { })
     .AddCookie()
     .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
