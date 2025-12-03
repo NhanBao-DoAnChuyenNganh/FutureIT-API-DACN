@@ -25,6 +25,7 @@ namespace DoAnCoSo_Web.Data
         public DbSet<PhieuDangKyKhoaHoc> PhieuDangKyKhoaHoc { get; set; }
         public DbSet<ToCaoDanhGia> ToCaoDanhGia { get; set; }
         public DbSet<ChuyenNganh> ChuyenNganh {  get; set; }
+        public DbSet<DiemDanh> DiemDanh { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

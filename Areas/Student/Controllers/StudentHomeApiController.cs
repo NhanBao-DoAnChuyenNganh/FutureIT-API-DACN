@@ -644,5 +644,26 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Student.Controllers
                 listConNo
             });
         }
+        [Authorize(AuthenticationSchemes = "JwtBearer", Roles = "Student")]
+        [HttpGet("{maLop}")]
+        public IActionResult GetTrangThaiDiemDanh(int maLop, DateTime? ngay)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            DateTime ngayDiemDanh = ngay ?? DateTime.Today;
+
+            var diemDanh = _db.DiemDanh
+                .FirstOrDefault(dd => dd.MaLopHoc == maLop
+                                   && dd.UserId == userId
+                                   && dd.NgayDiemDanh.Date == ngayDiemDanh.Date);
+
+            return Ok(new
+            {
+                NgayDiemDanh = ngayDiemDanh,
+                DaDiemDanh = diemDanh != null,
+                CoMat = diemDanh?.CoMat ?? false,
+                GhiChu = diemDanh?.GhiChu
+            });
+        }
+
     }
 }
