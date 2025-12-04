@@ -141,5 +141,195 @@ namespace DoAnCoSo_Web_TestAPI.Areas.Teacher.Controllers
             return Ok(new { success = true, message = "Lưu nhận xét thành công!" });
         }
 
+        // ===============================
+        // 4) API: Lấy danh sách điểm danh theo ngày
+        // ===============================
+        [HttpGet("{maLop}")]
+        public IActionResult GetDiemDanhTheoNgay(int maLop, DateTime? ngay)
+        {
+            DateTime ngayDiemDanh = ngay ?? DateTime.Today;
+
+            var danhSachHocVien = _db.ChiTietHocTap
+                .Where(ct => ct.MaLopHoc == maLop)
+                .Include(ct => ct.User)
+                .Select(ct => new
+                {
+                    ct.User.Id,
+                    ct.User.HoTen,
+                    ct.User.Email,
+                    Avatar = $"{_appSettings.BaseUrl}/api/Image/GetAvatar?userId={ct.User.Id}",
+                    DiemDanh = _db.DiemDanh
+                        .Where(dd => dd.MaLopHoc == maLop 
+                                  && dd.UserId == ct.User.Id 
+                                  && dd.NgayDiemDanh.Date == ngayDiemDanh.Date)
+                        .Select(dd => new
+                        {
+                            dd.MaDiemDanh,
+                            dd.CoMat,
+                            dd.GhiChu
+                        })
+                        .FirstOrDefault()
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                NgayDiemDanh = ngayDiemDanh,
+                DanhSach = danhSachHocVien
+            });
+        }
+
+        // ===============================
+        // 5) API: Lưu điểm danh
+        // ===============================
+        public class DiemDanhDTO
+        {
+            public int MaLop { get; set; }
+            public string UserId { get; set; }
+            public DateTime NgayDiemDanh { get; set; }
+            public bool CoMat { get; set; }
+            public string? GhiChu { get; set; }
+        }
+
+        [HttpPost]
+        public IActionResult LuuDiemDanh([FromBody] DiemDanhDTO data)
+        {
+            // Kiểm tra giáo viên có dạy lớp này không
+            string teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var giangDay = _db.ChiTietGiangDay
+                .Any(gd => gd.UserId == teacherId && gd.MaLopHoc == data.MaLop);
+
+            if (!giangDay)
+                return Forbid();
+
+            // Kiểm tra học viên có trong lớp không
+            var hocVien = _db.ChiTietHocTap
+                .Any(ct => ct.UserId == data.UserId && ct.MaLopHoc == data.MaLop);
+
+            if (!hocVien)
+                return NotFound(new { message = "Học viên không thuộc lớp này" });
+
+            // Tìm bản ghi điểm danh (nếu đã có)
+            var diemDanh = _db.DiemDanh
+                .FirstOrDefault(dd => dd.MaLopHoc == data.MaLop 
+                                   && dd.UserId == data.UserId 
+                                   && dd.NgayDiemDanh.Date == data.NgayDiemDanh.Date);
+
+            if (diemDanh != null)
+            {
+                // Cập nhật
+                diemDanh.CoMat = data.CoMat;
+                diemDanh.GhiChu = data.GhiChu;
+            }
+            else
+            {
+                // Thêm mới
+                diemDanh = new DoAnCoSo_Web.Models.DiemDanh
+                {
+                    MaLopHoc = data.MaLop,
+                    UserId = data.UserId,
+                    NgayDiemDanh = data.NgayDiemDanh.Date,
+                    CoMat = data.CoMat,
+                    GhiChu = data.GhiChu
+                };
+                _db.DiemDanh.Add(diemDanh);
+            }
+
+            _db.SaveChanges();
+
+            return Ok(new { success = true, message = "Điểm danh thành công!" });
+        }
+
+        // ===============================
+        // 6) API: Lưu điểm danh hàng loạt
+        // ===============================
+        public class DiemDanhHangLoatDTO
+        {
+            public int MaLop { get; set; }
+            public DateTime NgayDiemDanh { get; set; }
+            public List<DiemDanhItemDTO> DanhSach { get; set; }
+        }
+
+        public class DiemDanhItemDTO
+        {
+            public string UserId { get; set; }
+            public bool CoMat { get; set; }
+            public string? GhiChu { get; set; }
+        }
+
+        [HttpPost]
+        public IActionResult LuuDiemDanhHangLoat([FromBody] DiemDanhHangLoatDTO data)
+        {
+            // Kiểm tra giáo viên có dạy lớp này không
+            string teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var giangDay = _db.ChiTietGiangDay
+                .Any(gd => gd.UserId == teacherId && gd.MaLopHoc == data.MaLop);
+
+            if (!giangDay)
+                return Forbid();
+
+            foreach (var item in data.DanhSach)
+            {
+                var diemDanh = _db.DiemDanh
+                    .FirstOrDefault(dd => dd.MaLopHoc == data.MaLop
+                                       && dd.UserId == item.UserId
+                                       && dd.NgayDiemDanh.Date == data.NgayDiemDanh.Date);
+
+                if (diemDanh != null)
+                {
+                    diemDanh.CoMat = item.CoMat;
+                    diemDanh.GhiChu = item.GhiChu;
+                }
+                else
+                {
+                    diemDanh = new DoAnCoSo_Web.Models.DiemDanh
+                    {
+                        MaLopHoc = data.MaLop,
+                        UserId = item.UserId,
+                        NgayDiemDanh = data.NgayDiemDanh.Date,
+                        CoMat = item.CoMat,
+                        GhiChu = item.GhiChu
+                    };
+                    _db.DiemDanh.Add(diemDanh);
+                }
+            }
+
+            _db.SaveChanges();
+
+            return Ok(new { success = true, message = "Điểm danh hàng loạt thành công!" });
+        }
+
+        // ===============================
+        // 7) API: Thống kê điểm danh của học viên
+        // ===============================
+        [HttpGet("{maLop}/{userId}")]
+        public IActionResult GetThongKeDiemDanh(int maLop, string userId)
+        {
+            var danhSachDiemDanh = _db.DiemDanh
+                .Where(dd => dd.MaLopHoc == maLop && dd.UserId == userId)
+                .OrderByDescending(dd => dd.NgayDiemDanh)
+                .Select(dd => new
+                {
+                    dd.NgayDiemDanh,
+                    dd.CoMat,
+                    dd.GhiChu
+                })
+                .ToList();
+
+            int tongBuoi = danhSachDiemDanh.Count;
+            int soLanCoMat = danhSachDiemDanh.Count(dd => dd.CoMat);
+            int soLanVang = tongBuoi - soLanCoMat;
+            double tyLeCoMat = tongBuoi > 0 ? (double)soLanCoMat / tongBuoi * 100 : 0;
+
+            return Ok(new
+            {
+                TongBuoi = tongBuoi,
+                SoLanCoMat = soLanCoMat,
+                SoLanVang = soLanVang,
+                TyLeCoMat = Math.Round(tyLeCoMat, 2),
+                ChiTiet = danhSachDiemDanh
+            });
+        }
+
     }
 }

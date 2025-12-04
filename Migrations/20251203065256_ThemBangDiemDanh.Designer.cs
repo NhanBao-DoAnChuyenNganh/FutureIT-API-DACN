@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAnCoSo_Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250526074451_XoaNgaySn")]
-    partial class XoaNgaySn
+    [Migration("20251203065256_ThemBangDiemDanh")]
+    partial class ThemBangDiemDanh
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,6 +128,39 @@ namespace DoAnCoSo_Web.Migrations
                     b.HasIndex("MaKhoaHoc");
 
                     b.ToTable("DanhSachQuanTam");
+                });
+
+            modelBuilder.Entity("DoAnCoSo_Web.Models.DiemDanh", b =>
+                {
+                    b.Property<int>("MaDiemDanh")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaDiemDanh"));
+
+                    b.Property<bool>("CoMat")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("GhiChu")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaLopHoc")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayDiemDanh")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("MaDiemDanh");
+
+                    b.HasIndex("MaLopHoc");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DiemDanh");
                 });
 
             modelBuilder.Entity("DoAnCoSo_Web.Models.HinhAnhKhoaHoc", b =>
@@ -665,6 +698,25 @@ namespace DoAnCoSo_Web.Migrations
                         .IsRequired();
 
                     b.Navigation("KhoaHoc");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DoAnCoSo_Web.Models.DiemDanh", b =>
+                {
+                    b.HasOne("DoAnCoSo_Web.Models.LopHoc", "LopHoc")
+                        .WithMany()
+                        .HasForeignKey("MaLopHoc")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DoAnCoSo_Web.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LopHoc");
 
                     b.Navigation("User");
                 });

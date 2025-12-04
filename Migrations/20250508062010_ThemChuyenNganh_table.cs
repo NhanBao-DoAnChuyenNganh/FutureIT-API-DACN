@@ -10,36 +10,43 @@ namespace DoAnCoSo_Web.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "ChuyenNganhMaChuyenNganh",
-                table: "AspNetUsers",
-                type: "int",
-                nullable: true);
+            // Tất cả đã tồn tại trong database, chỉ cần đánh dấu migration đã chạy
+            // Kiểm tra và tạo bảng ChuyenNganh nếu chưa có
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ChuyenNganh')
+                BEGIN
+                    CREATE TABLE [ChuyenNganh] (
+                        [MaChuyenNganh] int NOT NULL IDENTITY,
+                        [TenChuyenNganh] nvarchar(max) NOT NULL,
+                        CONSTRAINT [PK_ChuyenNganh] PRIMARY KEY ([MaChuyenNganh])
+                    );
+                END
+            ");
 
-            migrationBuilder.CreateTable(
-                name: "ChuyenNganh",
-                columns: table => new
-                {
-                    MaChuyenNganh = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TenChuyenNganh = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChuyenNganh", x => x.MaChuyenNganh);
-                });
+            // Kiểm tra và thêm cột nếu chưa có
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AspNetUsers') AND name = 'ChuyenNganhMaChuyenNganh')
+                BEGIN
+                    ALTER TABLE [AspNetUsers] ADD [ChuyenNganhMaChuyenNganh] int NULL;
+                END
+            ");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_ChuyenNganhMaChuyenNganh",
-                table: "AspNetUsers",
-                column: "ChuyenNganhMaChuyenNganh");
+            // Kiểm tra và tạo index nếu chưa có
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_AspNetUsers_ChuyenNganhMaChuyenNganh' AND object_id = OBJECT_ID('AspNetUsers'))
+                BEGIN
+                    CREATE INDEX [IX_AspNetUsers_ChuyenNganhMaChuyenNganh] ON [AspNetUsers] ([ChuyenNganhMaChuyenNganh]);
+                END
+            ");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUsers_ChuyenNganh_ChuyenNganhMaChuyenNganh",
-                table: "AspNetUsers",
-                column: "ChuyenNganhMaChuyenNganh",
-                principalTable: "ChuyenNganh",
-                principalColumn: "MaChuyenNganh");
+            // Kiểm tra và tạo foreign key nếu chưa có
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_AspNetUsers_ChuyenNganh_ChuyenNganhMaChuyenNganh')
+                BEGIN
+                    ALTER TABLE [AspNetUsers] ADD CONSTRAINT [FK_AspNetUsers_ChuyenNganh_ChuyenNganhMaChuyenNganh] 
+                    FOREIGN KEY ([ChuyenNganhMaChuyenNganh]) REFERENCES [ChuyenNganh] ([MaChuyenNganh]);
+                END
+            ");
         }
 
         /// <inheritdoc />
