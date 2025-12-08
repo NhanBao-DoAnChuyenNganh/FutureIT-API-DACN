@@ -1,6 +1,6 @@
-﻿    @using Microsoft.AspNetCore.Identity
-    @inject SignInManager<User> SignInManager
-    @inject UserManager<User> UserManager
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 @{
     ViewData["Title"] = "Trang Quản Trị";
     var statusMessage = TempData["StatusMessage"] as string;
@@ -21,124 +21,161 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
 <style>
-    .info-card {
-        border-radius: 15px;
+    .dashboard-card {
+        border-radius: 16px;
         color: white;
-        padding: 20px 30px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
+        padding: 28px 24px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        transition: all 0.3s ease;
         cursor: pointer;
-        height: 100px;
+        min-height: 140px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         text-decoration: none;
+        position: relative;
+        overflow: hidden;
     }
 
-        .info-card:hover {
-            transform: scale(1.05);
-            text-decoration: none;
-            color: white;
-        }
-
-    .card-user {
-        background-color: #6c757d; /* gray */
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        color: white;
     }
 
-    .card-teacher {
-        background-color: #20c997; /* teal */
+    .dashboard-card .card-content {
+        z-index: 2;
     }
 
-    .card-staff {
-        background-color: #6610f2; /* purple */
+    .dashboard-card .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 6px;
     }
 
-    .card-student {
-        background-color: #ffc107; /* amber */
-        color: black !important;
+    .dashboard-card .card-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.85;
     }
 
-    .card-vps-waiting {
-        background-color: #e83e8c; /* pink */
+    .dashboard-card .card-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 4.5rem;
+        opacity: 0.15;
+        z-index: 1;
     }
 
-    .card-vps-expired {
-        background-color: #fd7e14; /* orange */
-    }
-    .card-hoa-don-no {
-        background-color: #dc3545; /* đỏ Bootstrap (danger) */
-        color: white !important;
+    .card-gray { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
+    .card-teal { background: linear-gradient(135deg, #20c997 0%, #0ca678 100%); }
+    .card-purple { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); }
+    .card-amber { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529 !important; }
+    .card-amber .card-icon { color: #212529; }
+    .card-pink { background: linear-gradient(135deg, #e83e8c 0%, #c9236b 100%); }
+    .card-orange { background: linear-gradient(135deg, #fd7e14 0%, #dc6a0b 100%); }
+    .card-danger { background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%); }
+    .card-info { background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); }
+
+    .page-header {
+        margin-bottom: 2rem;
     }
 
-    .card-hoa-don-no:hover {
-        background-color: #b02a37; /* đỏ đậm hơn khi hover */
-        color: white !important;
+    .page-header h2 {
+        font-weight: 700;
+        color: #343a40;
     }
 </style>
+
 @if (User.IsInRole("Admin"))
 {
     <div class="text-end mb-3">
-        <a asp-area="Admin" asp-controller="AdminHome" asp-action="Index2" class="btn btn-outline-primary">🔙 Về trang Admin</a>
+        <a asp-area="Admin" asp-controller="AdminHome" asp-action="Index2" class="btn btn-outline-primary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Về trang Admin
+        </a>
     </div>
 }
+
 <div class="container mt-4">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Trang Quản Lý Học Vụ</h2>
+    <div class="page-header text-center">
+        <h2>Trang Quản Lý Học Vụ</h2>
     </div>
 
     <div class="row">
-        <div class="col-md-4 mb-3">
-            <a asp-action="TinTucTuyenDung" class="info-card card-user">
-                <span class="fs-5 fw-bold">Tin Tức Tuyển Dụng</span>
-                <i class="fa-solid fa-newspaper fa-2x"></i>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-action="TinTucTuyenDung" class="dashboard-card card-gray">
+                <div class="card-content">
+                    <div class="card-title">Tin Tức Tuyển Dụng</div>
+                    <div class="card-subtitle">Quản lý bài đăng tuyển dụng</div>
+                </div>
+                <i class="fa-solid fa-newspaper card-icon"></i>
             </a>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <a asp-controller="PhieuDangKyKhoaHoc" asp-action="Index" class="info-card card-teacher">
-                <span class="fs-5 fw-bold">Phiếu Đăng Ký Khóa Học</span>
-                <i class="fa-solid fa-file-signature fa-2x"></i>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-controller="PhieuDangKyKhoaHoc" asp-action="Index" class="dashboard-card card-teal">
+                <div class="card-content">
+                    <div class="card-title">Phiếu Đăng Ký</div>
+                    <div class="card-subtitle">Xử lý đăng ký khóa học</div>
+                </div>
+                <i class="fa-solid fa-file-signature card-icon"></i>
             </a>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <a asp-controller="KhoaHoc" asp-action="Index" class="info-card card-staff">
-                <span class="fs-5 fw-bold">Danh Sách Khóa Học</span>
-                <i class="fa-solid fa-book-open fa-2x"></i>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-controller="KhoaHoc" asp-action="Index" class="dashboard-card card-purple">
+                <div class="card-content">
+                    <div class="card-title">Khóa Học</div>
+                    <div class="card-subtitle">Quản lý danh sách khóa học</div>
+                </div>
+                <i class="fa-solid fa-book-open card-icon"></i>
             </a>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <a asp-controller="LopHoc" asp-action="Index" class="info-card card-student">
-                <span class="fs-5 fw-bold">Danh Sách Lớp Học</span>
-                <i class="fa-solid fa-users fa-2x"></i>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-controller="LopHoc" asp-action="Index" class="dashboard-card card-amber">
+                <div class="card-content">
+                    <div class="card-title">Lớp Học</div>
+                    <div class="card-subtitle">Quản lý danh sách lớp học</div>
+                </div>
+                <i class="fa-solid fa-users card-icon"></i>
             </a>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <a asp-controller="PhongHoc" asp-action="Index" class="info-card card-vps-waiting">
-                <span class="fs-5 fw-bold">Danh Sách Phòng Học</span>
-                <i class="fa-solid fa-door-open fa-2x"></i>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-controller="PhongHoc" asp-action="Index" class="dashboard-card card-pink">
+                <div class="card-content">
+                    <div class="card-title">Phòng Học</div>
+                    <div class="card-subtitle">Quản lý danh sách phòng học</div>
+                </div>
+                <i class="fa-solid fa-door-open card-icon"></i>
             </a>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <a asp-controller="ToCaoDanhGia" asp-action="Index" class="info-card card-vps-expired">
-                <span class="fs-5 fw-bold">Tố Cáo Đánh Giá</span>
-                <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-controller="ToCaoDanhGia" asp-action="Index" class="dashboard-card card-orange">
+                <div class="card-content">
+                    <div class="card-title">Tố Cáo Đánh Giá</div>
+                    <div class="card-subtitle">Xử lý báo cáo vi phạm</div>
+                </div>
+                <i class="fa-solid fa-triangle-exclamation card-icon"></i>
             </a>
-        </div
-       
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+            <a asp-controller="HoaDon" asp-action="Index" class="dashboard-card card-danger">
+                <div class="card-content">
+                    <div class="card-title">Hóa Đơn Nợ</div>
+                    <div class="card-subtitle">Theo dõi công nợ học viên</div>
+                </div>
+                <i class="fa-solid fa-wallet card-icon"></i>
+            </a>
+        </div>
     </div>
 </div>
- <div class="row justify-content-center">
-    <div class="col-md-4 mb-3">
-        <a asp-controller="HoaDon" asp-action="Index" class="info-card card-hoa-don-no">
-            <span class="fs-5 fw-bold">Danh sách hóa đơn nợ</span>
-            <i class="fa-solid fa-wallet fa-2x"></i> 
-        </a>
-    </div>
-</div>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>

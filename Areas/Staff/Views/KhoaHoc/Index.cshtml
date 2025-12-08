@@ -1,111 +1,175 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model DoAnCoSo_Web.Areas.Staff.ViewModels.KhoaHocIndexViewModel
 @{
-    ViewData["Title"] = " Danh sách  khóa học";
+    ViewData["Title"] = "Danh sách khóa học";
 }
-@model DoAnCoSo_Web.Areas.Staff.ViewModels.KhoaHocIndexViewModel
 
-
-<a asp-action="Index" asp-controller="StaffHome" class="btn btn-secondary mb-3">Quay lại</a>
-<title>@ViewData["Title"]</title>
-<h2>@ViewData["Title"]</h2>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
 <style>
-	/* Căn trái tất cả nội dung trong bảng */
-	#example td,
-	#example th {
-		text-align: left !important;
-	}
+    .page-header {
+        background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+        color: white;
+        padding: 24px 30px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+    }
+    .page-header h2 { margin: 0; font-weight: 700; }
+    .page-header p { margin: 8px 0 0; opacity: 0.9; }
+    .card-table {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 24px;
+    }
+    .table thead th {
+        background: #e9ecef;
+        color: #212529;
+        font-weight: 600;
+        border: none;
+        padding: 14px 12px;
+        text-align: left !important;
+    }
+    .table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        text-align: left !important;
+    }
+    .table tbody tr:hover { background-color: #f8f9fa; }
+    .btn-back {
+        background: white;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .btn-back:hover { background: #f8f9fa; color: #495057; }
+    .btn-action {
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin: 2px;
+        transition: all 0.2s;
+    }
+    .btn-action:hover { transform: translateY(-1px); }
+    .btn-add {
+        background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.2s;
+    }
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4);
+        color: white;
+    }
+    .price-tag {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
 </style>
 
-<table id="example" class="table table-striped" style="width:100%">
-	<thead class="table-dark">
-		<tr>
-			<th>Tên khóa học </th>
-			<th>Học Phí</th>
-			<th>Ngày học</th>
-			<th>Giờ bắt đầu</th>
-			<th>Giờ kết thúc</th>
-			<th>Chức năng</th>
-			
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var item in Model.dsKhoaHoc)
-		{
-			<tr>
-				<td>@item.TenKhoaHoc</td>
-				<td>@item.HocPhi.ToString("N0") VND</td>
-				<td>@item.NgayHoc</td>
-				<td>@item.GioBatDau.Split('.')[0]</td>
-				<td>@item.GioKetThuc.Split('.')[0]</td>
-				<td>
-					<a asp-area="Staff" asp-controller="KhoaHoc" asp-action="Edit" asp-route-id="@item.MaKhoaHoc" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm">
-						<i class="fa-solid fa-pen-to-square"></i>Sửa
-					</a>
-					<button class="btn btn-danger fw-bold rounded-pill shadow-sm delete-btn" onclick="xoa(@item.MaKhoaHoc,this)">
-						<i class="fa-solid fa-trash"></i> Xóa
-					</button>
-					<a asp-area="Staff" asp-controller="KHoaHoc" asp-action="Detail" asp-route-id="@item.MaKhoaHoc" class="btn btn-outline-info fw-bold rounded-pill shadow-sm">
-						<i class="fa-solid fa-circle-info"></i> Xem chi tiết
-					</a>
+<div class="container-fluid py-4">
+    <a asp-action="Index" asp-controller="StaffHome" class="btn btn-back mb-3">
+        <i class="fa-solid fa-arrow-left me-2"></i>Quay lại
+    </a>
 
-				</td>
-			</tr>
-		}
-	</tbody>
-</table>
-<a href="@Url.Action("Create")" class="btn btn-primary">+ Thêm khóa học</a>
+    <div class="page-header">
+        <h2><i class="fa-solid fa-book-open me-2"></i>Danh sách khóa học</h2>
+    </div>
+
+    <div class="card-table">
+        <table id="example" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Tên khóa học</th>
+                    <th>Học phí</th>
+                    <th>Ngày học</th>
+                    <th>Giờ BĐ</th>
+                    <th>Giờ KT</th>
+                    <th>Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.dsKhoaHoc)
+                {
+                    <tr>
+                        <td><strong>@item.TenKhoaHoc</strong></td>
+                        <td><span class="price-tag">@item.HocPhi.ToString("N0") VND</span></td>
+                        <td>@item.NgayHoc</td>
+                        <td>@item.GioBatDau.Split('.')[0]</td>
+                        <td>@item.GioKetThuc.Split('.')[0]</td>
+                        <td>
+                            <a asp-area="Staff" asp-controller="KhoaHoc" asp-action="Edit" asp-route-id="@item.MaKhoaHoc" class="btn btn-outline-primary btn-action">
+                                <i class="fa-solid fa-pen-to-square"></i> Sửa
+                            </a>
+                            <button class="btn btn-outline-danger btn-action" onclick="xoa(@item.MaKhoaHoc,this)">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                            <a asp-area="Staff" asp-controller="KhoaHoc" asp-action="Detail" asp-route-id="@item.MaKhoaHoc" class="btn btn-outline-info btn-action">
+                                <i class="fa-solid fa-circle-info"></i> Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="mt-4">
+            <a href="@Url.Action("Create")" class="btn btn-add">
+                <i class="fa-solid fa-plus me-2"></i>Thêm khóa học
+            </a>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
 <script>
-	new DataTable('#example',{
-		pageLength: 5,
-		 lengthChange: false,
-		 columnDefs: [
-		{ targets: 0, searchable: true },
-		{ targets: [1, 2], searchable: false }
-	  ],
-		language: {
-			search: "Tìm kiếm:",
-			 lengthMenu: "Hiển thị _MENU_ dòng",
-			info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
-			paginate: {
-				previous: "Trước",
-				next: "Sau"
-			},
-			zeroRecords: "Không tìm thấy kết quả phù hợp"
-		}
-	});
-	 function xoa(id, element) {
-		if (!confirm("Bạn có chắc chắn muốn xóa khóa học này không?")) {
-			return;
-		}
+    new DataTable('#example', {
+        pageLength: 10,
+        lengthChange: false,
+        columnDefs: [
+            { targets: 0, searchable: true },
+            { targets: [1, 2, 3, 4, 5], searchable: false }
+        ],
+        language: {
+            search: "<i class='fa-solid fa-search'></i> Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: { previous: "Trước", next: "Sau" },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
 
-		$.ajax({
-			url: `/Staff/KhoaHoc/Delete`,  // Thay đổi URL đúng với action Delete của controller KhoaHoc
-			type: "POST",
-			data: { id: id },
-			success: function (response) {
-				if (response.success) {
-					// Ẩn dòng chứa khóa học (row trong table)
-					$(element).closest("tr").fadeOut(500, function () {
-						$(this).remove();
-					});
-				} else {
-					alert("Không thể xóa khóa học này!");
-				}
-			},
-			error: function () {
-				alert("Lỗi khi xóa khóa học!");
-			}
-		});
-	}
+    function xoa(id, element) {
+        if (!confirm("Bạn có chắc chắn muốn xóa khóa học này không?")) return;
+        $.ajax({
+            url: `/Staff/KhoaHoc/Delete`,
+            type: "POST",
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    $(element).closest("tr").fadeOut(500, function () { $(this).remove(); });
+                } else {
+                    alert("Không thể xóa khóa học này!");
+                }
+            },
+            error: function () { alert("Lỗi khi xóa khóa học!"); }
+        });
+    }
 </script>

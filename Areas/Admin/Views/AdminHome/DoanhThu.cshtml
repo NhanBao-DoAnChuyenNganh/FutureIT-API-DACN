@@ -1,208 +1,188 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model List<DoAnCoSo_Web.Models.HoaDon>
+﻿@model List<DoAnCoSo_Web.Models.HoaDon>
 @{
-	ViewData["Title"] = "Danh sách hóa đơn / Doanh thu";
+    ViewData["Title"] = "Danh sách hóa đơn / Doanh thu";
+    string selectedMonth = ViewData["SelectedMonth"] as string ?? "";
+    var allCourses = ViewData["AllCourses"] as List<string> ?? new List<string>();
+    string selectedCourse = ViewData["SelectedCourse"] as string ?? "";
 }
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<style>
-	.table {
-		width: 100%;
-		border-collapse: collapse;
-		font-family: Arial, sans-serif;
-		margin: 20px 0;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	}
 
-		.table th, .table td {
-			padding: 12px;
-			text-align: left;
-			border-bottom: 1px solid #ddd;
-		}
-
-		.table th {
-			background-color: #007BFF;
-			color: white;
-			text-transform: uppercase;
-			font-weight: bold;
-		}
-
-		.table tbody tr:hover {
-			background-color: #f5f5f5;
-		}
-
-		.table td {
-			color: #333;
-		}
-
-		.table tbody tr:nth-child(even) {
-			background-color: #f9f9f9;
-		}
-
-	h2 {
-		text-align: center;
-		background-color: #007BFF;
-		color: white !important;
-		padding: 10px 15px;
-		margin: 0 0 20px 0;
-	}
-	/* Ghi đè màu nền của thead */
-	table.dataTable thead th {
-		background-color: #007BFF !important;
-		color: white !important;
-		text-transform: uppercase;
-		font-weight: bold;
-	}
-
-</style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
-<h2>Danh sách hóa đơn / Doanh thu</h2>
 
-<div class="container">
-	<a asp-action="Index2" asp-controller="AdminHome" class="btn btn-secondary mb-3">Quay lại</a>
-	@{
-		string selectedMonth = ViewData["SelectedMonth"] as string ?? "";
-		var allCourses = ViewData["AllCourses"] as List<string> ?? new List<string>();
-		string selectedCourse = ViewData["SelectedCourse"] as string ?? "";
-	}
+<style>
+    body { background-color: #f4f6f9; }
+    .page-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 24px 30px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    .page-header h2 { margin: 0; font-weight: 700; }
+    .page-header p { margin: 8px 0 0; opacity: 0.9; }
+    .card-table {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 24px;
+    }
+    .table thead th {
+        background: #e9ecef;
+        color: #212529;
+        font-weight: 600;
+        border: none;
+        padding: 14px 12px;
+    }
+    .table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+    }
+    .table tbody tr:hover { background-color: #f8f9fa; }
+    .btn-back {
+        background: white;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .filter-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .amount-total {
+        color: #28a745;
+        font-weight: 600;
+    }
+</style>
 
-	<form method="get" id="filterForm">
-		<div class="row mb-3">
-			<div class="col-md-3">
-				<label for="filterMonth" class="form-label">Lọc theo tháng:</label>
-				<select id="filterMonth" name="month" class="form-select" onchange="document.getElementById('filterForm').submit()">
-					<option value="">Tất cả</option>
-					@for (int i = 1; i <= 12; i++)
-					{
-						<option value="@i" selected="@(selectedMonth == i.ToString() ? "selected" : null)">Tháng @i</option>
-					}
+<div class="container-fluid py-4">
+    <a asp-action="Index2" asp-controller="AdminHome" class="btn btn-back mb-3">
+        <i class="fa-solid fa-arrow-left me-2"></i>Quay lại
+    </a>
 
-				</select>
-			</div>
-			<div class="col-md-3">
-				<label for="filterCourse" class="form-label">Lọc theo khóa học:</label>
-				<select id="filterCourse" name="course" class="form-select" onchange="document.getElementById('filterForm').submit()" >
-					<option value="">Tất cả</option>
-					@foreach (var kh in allCourses)
-					{
-						<option value="@kh" selected="@(selectedCourse == kh ? "selected" : null)">@kh</option>
-					}
-				</select>
-			</div>
-		</div>
-	</form>
-	
-	<table id="example" class="table table-striped" style="width:100%">
-		<thead>
-			<tr>
-				<th>Mã HĐ</th>
-				<th>Email</th>
-				<th>Họ Tên</th>
-				<th>Khóa học</th>
-				<th>Ngày học</th>
-				<th>Nguời thêm</th>
-				<th>Ngày lập</th>
-				<th>Tổng tiền</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var item in Model)
-			{
-				var tenNguoiDung = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
-				? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.User?.HoTen ?? "Không rõ"))
-				: "Không rõ";
+    <div class="page-header">
+        <h2><i class="fa-solid fa-receipt me-2"></i>Danh sách hóa đơn / Doanh thu</h2>
+    </div>
 
-				var email = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
-				? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.User?.Email ?? "Không rõ"))
-				: "Không rõ";
+    <div class="filter-card">
+        <form method="get" id="filterForm">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="filterMonth" class="form-label fw-bold">Lọc theo tháng:</label>
+                    <select id="filterMonth" name="month" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Tất cả</option>
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i" selected="@(selectedMonth == i.ToString() ? "selected" : null)">Tháng @i</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="filterCourse" class="form-label fw-bold">Lọc theo khóa học:</label>
+                    <select id="filterCourse" name="course" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Tất cả</option>
+                        @foreach (var kh in allCourses)
+                        {
+                            <option value="@kh" selected="@(selectedCourse == kh ? "selected" : null)">@kh</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
 
-				var tenKhoaHoc = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
-				? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.KhoaHoc?.TenKhoaHoc ?? "Không rõ"))
-				: "Không rõ";
+    <div class="card-table">
+        <table id="example" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Mã HĐ</th>
+                    <th>Email</th>
+                    <th>Họ Tên</th>
+                    <th>Khóa học</th>
+                    <th>Ngày học</th>
+                    <th>Người thêm</th>
+                    <th>Ngày lập</th>
+                    <th>Tổng tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var tenNguoiDung = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
+                        ? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.User?.HoTen ?? "Không rõ"))
+                        : "Không rõ";
+                    var email = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
+                        ? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.User?.Email ?? "Không rõ"))
+                        : "Không rõ";
+                    var tenKhoaHoc = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
+                        ? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.KhoaHoc?.TenKhoaHoc ?? "Không rõ"))
+                        : "Không rõ";
+                    var ngayHoc = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
+                        ? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.KhoaHoc?.NgayHoc ?? "Không rõ"))
+                        : "Không rõ";
+                    var nguoiThem = item.User?.HoTen ?? "Không rõ";
+                    var tongTien = item.TienDongLan1 + (item.TienDongLan2 ?? 0);
 
-				var ngayHoc = item.PhieuDangKyKhoaHoc != null && item.PhieuDangKyKhoaHoc.Any()
-				? string.Join(", ", item.PhieuDangKyKhoaHoc.Select(p => p.KhoaHoc?.NgayHoc ?? "Không rõ"))
-				: "Không rõ";
-
-				var nguoiThem = item.User?.HoTen ?? "Không rõ";
-				var tongTien = item.TienDongLan1 + (item.TienDongLan2 ?? 0);
-				<tr>
-					<td>@item.MaHoaDon</td>
-					<td>@email</td>
-					<td>@tenNguoiDung</td>
-					<td>@tenKhoaHoc</td>
-					<td>@ngayHoc</td>
-					<td>@nguoiThem</td>
-					<td data-order="@item.NgayLap.ToString("yyyy-MM-ddTHH:mm:ss")">
-						@item.NgayLap.ToString("dd/MM/yyyy")
-					</td>
-
-					<td>@tongTien.ToString("N0") VND</td>
-				</tr>
-			}
-
-		</tbody>
-	</table>
+                    <tr>
+                        <td><strong>#@item.MaHoaDon</strong></td>
+                        <td>@email</td>
+                        <td>@tenNguoiDung</td>
+                        <td>@tenKhoaHoc</td>
+                        <td>@ngayHoc</td>
+                        <td>@nguoiThem</td>
+                        <td data-order="@item.NgayLap.ToString("yyyy-MM-ddTHH:mm:ss")">@item.NgayLap.ToString("dd/MM/yyyy")</td>
+                        <td class="amount-total">@tongTien.ToString("N0") VND</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
-
-
-<!--JSzip để xuất .xlxs-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<!--Buttons scripts-->
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>//hiển thị nút
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>//hoạt động nút
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script>
-		new DataTable('#example', {
-		columnDefs: [
-			{ targets: 2, searchable: true },
-			{ targets: [1, 0, 3, 4, 5, 6, 7], searchable: false }
-		],
-		order: [[6, 'desc']],
-		dom: 'Bfrtip',
-		buttons: [
-			{
-				extend: 'excelHtml5',
-				text: '<i class="fas fa-file-excel"></i> Xuất Excel',
-				className: 'btn btn-success',
-				exportOptions: {
-					columns: ':visible'//xuất tất cả cột trong datatable
-				},
-				filename: function () {
-					return TenFileExcel();
-				}
-			}
-		],
-		language: {
-			search: "Tìm kiếm:",
-			lengthMenu: "Hiển thị _MENU_ dòng",
-			info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
-			paginate: {
-				previous: "Trước",
-				next: "Sau"
-			},
-			zeroRecords: "Không tìm thấy kết quả phù hợp"
-		}
-	});
+    new DataTable('#example', {
+        columnDefs: [
+            { targets: 2, searchable: true },
+            { targets: [1, 0, 3, 4, 5, 6, 7], searchable: false }
+        ],
+        order: [[6, 'desc']],
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel me-1"></i> Xuất Excel',
+                className: 'btn btn-success',
+                exportOptions: { columns: ':visible' },
+                filename: function () { return TenFileExcel(); }
+            }
+        ],
+        language: {
+            search: "Tìm kiếm:",
+            lengthMenu: "Hiển thị _MENU_ dòng",
+            info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+            paginate: { previous: "Trước", next: "Sau" },
+            zeroRecords: "Không tìm thấy kết quả phù hợp"
+        }
+    });
 
-	function TenFileExcel(){
-		const Thang = document.getElementById('filterMonth').value;
-		const KhoaHoc = document.getElementById('filterCourse').value;
-		let Ten = "Hóa đơn_";
-		if(Thang!= ""){
-			Ten += "Tháng " + Thang + "_";
-		}
-		if(KhoaHoc!= ""){
-			Ten += "KH " + KhoaHoc;
-		}
-		return Ten;
-	}
+    function TenFileExcel() {
+        const Thang = document.getElementById('filterMonth').value;
+        const KhoaHoc = document.getElementById('filterCourse').value;
+        let Ten = "Hóa đơn_";
+        if (Thang != "") Ten += "Tháng " + Thang + "_";
+        if (KhoaHoc != "") Ten += "KH " + KhoaHoc;
+        return Ten;
+    }
 </script>

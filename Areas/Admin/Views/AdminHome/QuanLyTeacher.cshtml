@@ -1,97 +1,136 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Quản lý giáo viên";
 }
 @model IEnumerable<dynamic>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
 <style>
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: Arial, sans-serif;
-        margin: 20px 0;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .table th {
-            background-color: #007BFF; /* Changed from green (#4CAF50) to blue */
-            color: white;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .table td {
-            color: #333;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-    h2 {
-        text-align: center;
-        background-color: #007BFF;
+    body { background-color: #f4f6f9; }
+    .page-header {
+        background: linear-gradient(135deg, #20c997 0%, #0ca678 100%);
         color: white;
-        padding: 10px 15px;
-        margin: 0 0 20px 0;
+        padding: 24px 30px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 15px rgba(32, 201, 151, 0.3);
+    }
+    .page-header h2 { margin: 0; font-weight: 700; }
+    .page-header p { margin: 8px 0 0; opacity: 0.9; }
+    .card-table {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 24px;
+    }
+    .table thead th {
+        background: #e9ecef;
+        color: #212529;
+        font-weight: 600;
+        border: none;
+        padding: 14px 12px;
+    }
+    .table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+    }
+    .table tbody tr:hover { background-color: #f8f9fa; }
+    .btn-back {
+        background: white;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin: 2px;
+    }
+    .avatar-cell img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e9ecef;
+    }
+    .badge-banned {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    .badge-specialty {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
     }
 </style>
-<h2>Các giáo viên</h2>
-<div class="container">
-    <a asp-action="Index2" asp-controller="AdminHome" class="btn btn-secondary mb-3">Quay lại</a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th style="width:20%">Mã giáo viên</th>
-                <th style="width:20%">Họ Tên</th>
-                <th style="width:20%">Ảnh</th>
-                <th style="width:20%">Chuyên ngành</th>
-                <th style="width:20%">Chức năng</th>
 
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+<div class="container-fluid py-4">
+    <a asp-action="Index2" asp-controller="AdminHome" class="btn btn-back mb-3">
+        <i class="fa-solid fa-arrow-left me-2"></i>Quay lại
+    </a>
+
+    <div class="page-header">
+        <h2><i class="fa-solid fa-chalkboard-teacher me-2"></i>Các giáo viên</h2>
+    </div>
+
+    <div class="card-table">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td style="text-align: center">@item.Id</td>
-                    <td style="text-align: center">@item.HoTen</td>
-                    <td style="text-align: center">
-                        <img src="@item.Avatar" alt="Avatar" width="50" height="50" style="text-align:center; border-radius: 50%;" />
-                    </td>
-
-                    <td style="text-align: center">@item.ChuyenNganh</td>
-                    <td>
-                        <a asp-action="EditTeacher" asp-controller="AdminHome" asp-route-id="@item.Id" class="btn btn-info btn-sm">Chỉnh sửa</a>
-
-                        <a asp-action="DisplayTeacher" asp-controller="AdminHome" asp-route-id="@item.Id" class="btn btn-info btn-sm">Xem chi tiết</a>
-                        @if (!item.IsApproved)
-                        {
-                            <form asp-action="ApproveUser" asp-controller="AdminHome" method="post" style="display:inline">
-                                <input type="hidden" name="userId" value="@item.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-success">Duyệt</button>
-                            </form>
-                            <form asp-action="RejectUser" asp-controller="AdminHome" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn từ chối tài khoản này?');">
-                                <input type="hidden" name="userId" value="@item.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Từ chối</button>
-                            </form>
+                    <th style="width:15%">Mã GV</th>
+                    <th style="width:20%">Họ Tên</th>
+                    <th style="width:10%">Ảnh</th>
+                    <th style="width:15%">Chuyên ngành</th>
+                    <th style="width:40%">Chức năng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><code>@item.Id</code></td>
+                        <td><strong>@item.HoTen</strong></td>
+                        <td class="avatar-cell">
+                            <img src="@item.Avatar" alt="Avatar" />
+                        </td>
+                        <td><span class="badge-specialty">@item.ChuyenNganh</span></td>
+                        <td>
+                            <a asp-action="EditTeacher" asp-controller="AdminHome" asp-route-id="@item.Id" class="btn btn-outline-primary btn-action">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>Sửa
+                            </a>
+                            <a asp-action="DisplayTeacher" asp-controller="AdminHome" asp-route-id="@item.Id" class="btn btn-info btn-action">
+                                <i class="fa-solid fa-eye me-1"></i>Chi tiết
+                            </a>
+                            @if (!item.IsApproved)
+                            {
+                                <form asp-action="ApproveUser" asp-controller="AdminHome" method="post" style="display:inline">
+                                    <input type="hidden" name="userId" value="@item.Id" />
+                                    <button type="submit" class="btn btn-success btn-action">
+                                        <i class="fa-solid fa-check me-1"></i>Duyệt
+                                    </button>
+                                </form>
+                                <form asp-action="RejectUser" asp-controller="AdminHome" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn từ chối tài khoản này?');">
+                                    <input type="hidden" name="userId" value="@item.Id" />
+                                    <button type="submit" class="btn btn-danger btn-action">
+                                        <i class="fa-solid fa-xmark me-1"></i>Từ chối
+                                    </button>
+                                </form>
                             }
                             else
                             {
                                 @if (item.IsMainAdmin)
                                 {
-                                    <span class="text-muted fst-italic">Không thể thao tác vì đây là admin gốc</span>
+                                    <span class="badge-banned"><i class="fa-solid fa-shield me-1"></i>Admin gốc</span>
                                 }
                                 else
                                 {
@@ -99,21 +138,26 @@
                                     {
                                         <form asp-action="BanUser" asp-controller="AdminHome" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc chắn muốn cấm người dùng này không?');">
                                             <input type="hidden" name="userId" value="@item.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Cấm</button>
+                                            <button type="submit" class="btn btn-outline-danger btn-action">
+                                                <i class="fa-solid fa-ban me-1"></i>Cấm
+                                            </button>
                                         </form>
                                     }
                                     else
                                     {
                                         <form asp-action="UnBanUser" asp-controller="AdminHome" method="post" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn gỡ cấm người dùng này không?');">
                                             <input type="hidden" name="userId" value="@item.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-success">Gỡ cấm</button>
+                                            <button type="submit" class="btn btn-outline-success btn-action">
+                                                <i class="fa-solid fa-unlock me-1"></i>Gỡ cấm
+                                            </button>
                                         </form>
                                     }
                                 }
-                            }                        
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
